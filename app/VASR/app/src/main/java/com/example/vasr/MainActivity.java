@@ -68,12 +68,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupButtonHandler();
-        enableButtons(false);
+        changeButtonsStatus(true, false, false, false);
     }
 
-    private void enableButtons(boolean isRecording) {
-        btnRecord.setEnabled(!isRecording);
-        btnStop.setEnabled(isRecording);
+    private void changeButtonsStatus(boolean s1, boolean s2, boolean s3, boolean s4) {
+        btnRecord.setEnabled(s1);
+        btnStop.setEnabled(s2);
+        btnPlay.setEnabled(s3);
+        btnTest.setEnabled(s4);
     }
 
     private void setupButtonHandler() {
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkPermissionOnDevice()) {
-                    enableButtons(true);
+                    changeButtonsStatus(false, true, false, false);
                     startRecording();
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
                 } else {
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                enableButtons(false);
+                changeButtonsStatus(true, false, true, true);
                 stopRecording();
                 try {
                     AudioConverter.PCMToWAV(new File(pcmPathSave), new File(wavPathSave), 1, RECORDER_SAMPLERATE, 16);
@@ -107,11 +109,18 @@ public class MainActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                changeButtonsStatus(false, false, false, true);
                 mediaPlayer = new MediaPlayer();
                 try {
                     mediaPlayer.setDataSource(wavPathSave);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            changeButtonsStatus(true, false, true, true);
+                        }
+                    });
                     Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -122,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                changeButtonsStatus(false, false, false, false);
                 postRequest(new File(wavPathSave));
             }
         });
@@ -241,6 +251,12 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
                 String errMsg = e.getMessage();
                 Log.w("Message failure",errMsg);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        changeButtonsStatus(true, false, true, true);
+                    }
+                });
             }
 
             @Override
@@ -248,6 +264,12 @@ public class MainActivity extends AppCompatActivity {
                 String mMessage = response.body().string();
                 if (response.isSuccessful()){
                     try {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                changeButtonsStatus(true, false, true, true);
+                            }
+                        });
                         JSONObject json = new JSONObject(mMessage);
                         String text = json.getString("text");
                         showResultScreen(text);
