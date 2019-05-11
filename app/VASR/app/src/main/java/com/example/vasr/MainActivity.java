@@ -287,4 +287,9 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("TEXT", text);
         startActivity(intent);
     }
+
+    private void showAudioListScreen() {
+        Intent intent = new Intent(this,AudioListActivity.class);
+        startActivity(intent);
+    }
 }

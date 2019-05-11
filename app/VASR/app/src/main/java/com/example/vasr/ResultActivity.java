@@ -17,6 +17,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -71,7 +72,7 @@ public class ResultActivity extends AppCompatActivity {
         Document document = new Document();
         String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
         String fileName = "VASR_" + dateString + ".pdf";
-        String filePath = Environment.getExternalStorageDirectory() + "/" + fileName;
+        String filePath = Environment.getExternalStorageDirectory() + File.separator + fileName;
 
         try {
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
