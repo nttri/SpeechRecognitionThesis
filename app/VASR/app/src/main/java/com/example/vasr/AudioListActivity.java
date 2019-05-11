@@ -4,9 +4,7 @@ import android.graphics.Color;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ListView;
 
 import java.io.File;
@@ -44,6 +42,7 @@ public class AudioListActivity extends AppCompatActivity {
     private void setupData() {
         //get data
         getAudio();
+
         //setup data on listview
         listAdapter = new ListAdapter(this,audios);
         listView.setAdapter(listAdapter);

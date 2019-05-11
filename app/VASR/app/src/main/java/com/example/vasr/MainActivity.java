@@ -13,33 +13,22 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button btnRecord, btnStop, btnPlay, btnTest;
-    private MediaPlayer mediaPlayer;
-    private String pcmPathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.pcm";
-    private String wavPathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.wav";
+    private String pcmPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.pcm";
+    private String wavPathSave = "";
     private final int REQUEST_PERMISSION_CODE = 1000;
 
     private static final int RECORDER_SAMPLERATE = 16000;
@@ -97,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 changeButtonsStatus(true, false, true, true);
                 stopRecording();
+                String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
+                String wavFilename = "vars_" + dateString + ".wav";
+                wavPathSave = Environment.getExternalStorageDirectory() + File.separator + wavFilename;
                 try {
                     AudioConverter.PCMToWAV(new File(pcmPathSave), new File(wavPathSave), 1, RECORDER_SAMPLERATE, 16);
                 } catch (IOException e) {
@@ -109,36 +101,19 @@ public class MainActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeButtonsStatus(false, false, false, true);
-                mediaPlayer = new MediaPlayer();
-                try {
-                    mediaPlayer.setDataSource(wavPathSave);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            changeButtonsStatus(true, false, true, true);
-                        }
-                    });
-                    Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                showAudioListScreen();
             }
         });
 
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeButtonsStatus(false, false, false, false);
-                postRequest(new File(wavPathSave));
+                showAudioListScreen();
             }
         });
     }
 
     private void startRecording() {
-
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 RECORDER_SAMPLERATE, RECORDER_CHANNELS,
                 RECORDER_AUDIO_ENCODING, BufferElements2Rec * BytesPerElement);
@@ -230,62 +205,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    private void postRequest(File file) {
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://vnstt001.herokuapp.com/file";
-
-        RequestBody body = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("voice",file.getName(),RequestBody.create(MediaType.parse("audio/wav"),file))
-                .build();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                String errMsg = e.getMessage();
-                Log.w("Message failure",errMsg);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        changeButtonsStatus(true, false, true, true);
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String mMessage = response.body().string();
-                if (response.isSuccessful()){
-                    try {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                changeButtonsStatus(true, false, true, true);
-                            }
-                        });
-                        JSONObject json = new JSONObject(mMessage);
-                        String text = json.getString("text");
-                        showResultScreen(text);
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        });
-    }
-
-    private void showResultScreen(String text) {
-        Intent intent = new Intent(this,ResultActivity.class);
-        intent.putExtra("TEXT", text);
-        startActivity(intent);
     }
 
     private void showAudioListScreen() {
