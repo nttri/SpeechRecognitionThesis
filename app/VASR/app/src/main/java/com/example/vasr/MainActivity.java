@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -26,7 +25,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnRecord, btnStop, btnPlay, btnTest;
+    private Button btnRecord, btnStop, btnTest;
     private String pcmPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.pcm";
     private String wavPathSave = "";
     private final int REQUEST_PERMISSION_CODE = 1000;
@@ -50,21 +49,19 @@ public class MainActivity extends AppCompatActivity {
         btnTest   = findViewById(R.id.btn_test);
         btnRecord = findViewById(R.id.btn_record);
         btnStop   = findViewById(R.id.btn_stop);
-        btnPlay   = findViewById(R.id.btn_play);
 
         if(!checkPermissionOnDevice()) {
             requestPermission();
         }
 
         setupButtonHandler();
-        changeButtonsStatus(true, false, false, false);
+        changeButtonsStatus(true, false, false);
     }
 
-    private void changeButtonsStatus(boolean s1, boolean s2, boolean s3, boolean s4) {
+    private void changeButtonsStatus(boolean s1, boolean s2, boolean s3) {
         btnRecord.setEnabled(s1);
         btnStop.setEnabled(s2);
-        btnPlay.setEnabled(s3);
-        btnTest.setEnabled(s4);
+        btnTest.setEnabled(true);
     }
 
     private void setupButtonHandler() {
@@ -72,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkPermissionOnDevice()) {
-                    changeButtonsStatus(false, true, false, false);
+                    changeButtonsStatus(false, true, false);
                     startRecording();
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
                 } else {
@@ -84,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeButtonsStatus(true, false, true, true);
+                changeButtonsStatus(true, false, true);
                 stopRecording();
                 String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
                 String wavFilename = "vars_" + dateString + ".wav";
@@ -95,13 +92,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        btnPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAudioListScreen();
             }
         });
 
