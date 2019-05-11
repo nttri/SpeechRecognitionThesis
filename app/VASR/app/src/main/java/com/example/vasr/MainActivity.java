@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 if(checkPermissionOnDevice()) {
                     changeButtonsStatus(false, true);
                     startRecording();
-                    Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
                 } else {
                     requestPermission();
                 }
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Kết thúc ghi âm", Toast.LENGTH_SHORT).show();
             }
         });
     }

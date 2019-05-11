@@ -55,7 +55,7 @@ public class ResultActivity extends AppCompatActivity {
         editText.setText(resultText);
 
         //setup export PDF button
-        btnExportPDF.setBackgroundColor(Color.RED);
+        btnExportPDF.setBackgroundColor(Color.rgb(0,150,136));
         btnExportPDF.setTextColor(Color.WHITE);
         btnExportPDF.setOnClickListener(new View.OnClickListener() {
             @Override

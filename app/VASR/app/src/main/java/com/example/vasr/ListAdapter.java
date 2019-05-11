@@ -1,5 +1,6 @@
 package com.example.vasr;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -31,10 +32,12 @@ public class ListAdapter extends BaseAdapter {
     public ArrayList<Audio> listAudios;
     private Context context;
     private MediaPlayer mediaPlayer;
+    private ProgressDialog progressDialog;
 
     public ListAdapter(Context context,ArrayList<Audio> listAudios) {
         this.context = context;
         this.listAudios = listAudios;
+        this.progressDialog = new ProgressDialog(context);
     }
 
     @Override
@@ -112,7 +115,7 @@ public class ListAdapter extends BaseAdapter {
 
                 }
             });
-            Toast.makeText(context, "Playing Audio", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Đang phát nhạc", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -122,6 +125,12 @@ public class ListAdapter extends BaseAdapter {
         //get file audio
         Audio audio = getItem(position);
         String wavPath = Environment.getExternalStorageDirectory() + File.separator + audio.AudioName;
+
+        //show progressing dialog
+        progressDialog.setMessage("Âm thanh đang được xử lý, vui lòng chờ trong giây lát.");
+//        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         //send request to server to process
         postRequest(new File(wavPath));
@@ -146,32 +155,23 @@ public class ListAdapter extends BaseAdapter {
             public void onFailure(Call call, IOException e) {
                 String errMsg = e.getMessage();
                 Log.w("Message failure",errMsg);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        changeButtonsStatus(true, false, true, true);
-//                    }
-//                });
+                progressDialog.dismiss();
+                Toast.makeText(context,errMsg,Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String mMessage = response.body().string();
+                progressDialog.dismiss();
                 if (response.isSuccessful()){
                     try {
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                changeButtonsStatus(true, false, true, true);
-//                            }
-//                        });
                         JSONObject json = new JSONObject(mMessage);
                         String text = json.getString("text");
                         showResultScreen(text);
                     } catch (Exception e){
                         e.printStackTrace();
+                        Toast.makeText(context,e.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
                     }
-
                 }
             }
         });
