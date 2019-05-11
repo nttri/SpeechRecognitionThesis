@@ -128,7 +128,6 @@ public class ListAdapter extends BaseAdapter {
 
         //show progressing dialog
         progressDialog.setMessage("Âm thanh đang được xử lý, vui lòng chờ trong giây lát.");
-//        progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setCancelable(false);
         progressDialog.show();
 
