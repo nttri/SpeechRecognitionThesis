@@ -12,6 +12,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -25,7 +28,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnRecord, btnStop, btnTest;
+    private Button btnRecord, btnStop;
     private String pcmPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.pcm";
     private String wavPathSave = "";
     private final int REQUEST_PERMISSION_CODE = 1000;
@@ -46,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().setTitle("VASR");
 
-        btnTest   = findViewById(R.id.btn_test);
         btnRecord = findViewById(R.id.btn_record);
         btnStop   = findViewById(R.id.btn_stop);
 
@@ -55,13 +57,34 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupButtonHandler();
-        changeButtonsStatus(true, false, false);
+        changeButtonsStatus(true, false);
     }
 
-    private void changeButtonsStatus(boolean s1, boolean s2, boolean s3) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.menu_list) {
+            if(btnRecord.isEnabled()) {
+                showAudioListScreen();
+            } else {
+                Toast.makeText(this,"Không thể mở danh sách khi đang ghi âm", Toast.LENGTH_SHORT).show();
+            }
+        } else if (id == R.id.menu_about) {
+            Toast.makeText(this,"Ứng dụng VASR phiên bản 1.0", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void changeButtonsStatus(boolean s1, boolean s2) {
         btnRecord.setEnabled(s1);
         btnStop.setEnabled(s2);
-        btnTest.setEnabled(true);
     }
 
     private void setupButtonHandler() {
@@ -69,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkPermissionOnDevice()) {
-                    changeButtonsStatus(false, true, false);
+                    changeButtonsStatus(false, true);
                     startRecording();
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
                 } else {
@@ -81,10 +104,10 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeButtonsStatus(true, false, true);
+                changeButtonsStatus(true, false);
                 stopRecording();
                 String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
-                String wavFilename = "vars_" + dateString + ".wav";
+                String wavFilename = "vasr_" + dateString + ".wav";
                 wavPathSave = Environment.getExternalStorageDirectory() + File.separator + wavFilename;
                 try {
                     AudioConverter.PCMToWAV(new File(pcmPathSave), new File(wavPathSave), 1, RECORDER_SAMPLERATE, 16);
@@ -92,13 +115,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        btnTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAudioListScreen();
             }
         });
     }

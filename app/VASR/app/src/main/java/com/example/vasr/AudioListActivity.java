@@ -58,7 +58,7 @@ public class AudioListActivity extends AppCompatActivity {
         for (int i = 0; i < files.length; i++)
         {
             String fileName = files[i].getName();
-            if(fileName.endsWith(".wav") && fileName.startsWith("vars_")) {
+            if(fileName.endsWith(".wav") && fileName.startsWith("vasr_")) {
                 audios.add(new Audio(fileName));
             }
         }
