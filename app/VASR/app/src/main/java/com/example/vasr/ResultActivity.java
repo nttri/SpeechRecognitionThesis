@@ -66,6 +66,8 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void exportPDF() {
+        //get text
+        String text = editText.getText().toString();
         Document document = new Document();
         String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
         String fileName = "VASR_" + dateString + ".pdf";
@@ -74,7 +76,7 @@ public class ResultActivity extends AppCompatActivity {
         try {
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
             document.open();
-            document.add(new Paragraph(resultText));
+            document.add(new Paragraph(text));
             document.close();
             Toast.makeText(this, fileName + " đã được lưu ở " + filePath, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
