@@ -115,7 +115,7 @@ public class ListAdapter extends BaseAdapter {
 
                 }
             });
-            Toast.makeText(context, "Đang phát nhạc", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Đang phát âm thanh", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
         }

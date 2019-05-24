@@ -11,12 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -60,25 +56,45 @@ public class ResultActivity extends AppCompatActivity {
         btnExportPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exportPDF();
+//                exportPDF();
+                exportTXT();
             }
         });
     }
 
-    private void exportPDF() {
+//    private void exportPDF() {
+//        //get text
+//        String text = editText.getText().toString();
+//        Document document = new Document();
+//        String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
+//        String fileName = "VASR_" + dateString + ".pdf";
+//        String filePath = Environment.getExternalStorageDirectory() + File.separator + fileName;
+//
+//        try {
+//            PdfWriter.getInstance(document, new FileOutputStream(filePath));
+//            document.open();
+//            document.add(new Paragraph(text));
+//            document.close();
+//            Toast.makeText(this, fileName + " đã được lưu ở " + filePath, Toast.LENGTH_SHORT).show();
+//        } catch (Exception e) {
+//            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
+    private void exportTXT() {
         //get text
         String text = editText.getText().toString();
-        Document document = new Document();
         String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
-        String fileName = "VASR_" + dateString + ".pdf";
+        String fileName = "VASR_" + dateString + ".txt";
         String filePath = Environment.getExternalStorageDirectory() + File.separator + fileName;
 
         try {
-            PdfWriter.getInstance(document, new FileOutputStream(filePath));
-            document.open();
-            document.add(new Paragraph(text));
-            document.close();
-            Toast.makeText(this, fileName + " đã được lưu ở " + filePath, Toast.LENGTH_SHORT).show();
+            File file = new File(filePath);
+            FileWriter writer = new FileWriter(file);
+            writer.append(text);
+            writer.flush();
+            writer.close();
+            Toast.makeText(this, "Tập tin đã được lưu ở " + filePath, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }

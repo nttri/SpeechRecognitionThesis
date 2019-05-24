@@ -30,7 +30,7 @@
         android:layout_marginRight="10dp"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
-        android:text="XUẤT PDF"
+        android:text="XUẤT TẬP TIN VĂN BẢN"
         android:textSize="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
