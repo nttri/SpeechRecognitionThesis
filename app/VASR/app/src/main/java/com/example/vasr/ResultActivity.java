@@ -94,7 +94,7 @@ public class ResultActivity extends AppCompatActivity {
             writer.append(text);
             writer.flush();
             writer.close();
-            Toast.makeText(this, "Tập tin đã được lưu ở " + filePath, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tập tin văn bản đã được lưu tại: " + filePath, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
