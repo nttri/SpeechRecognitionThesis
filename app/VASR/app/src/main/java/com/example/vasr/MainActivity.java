@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +30,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnRecord, btnStop;
+    private ImageButton btnRecord, btnStop;
     private TextView tvTimer;
 
     private String pcmPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.pcm";
@@ -55,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().setTitle("VASR");
 
-        btnRecord = findViewById(R.id.btn_record);
-        btnStop   = findViewById(R.id.btn_stop);
+        btnRecord = findViewById(R.id.ib_start_record);
+        btnStop   = findViewById(R.id.ib_stop_record);
         tvTimer   = findViewById(R.id.tv_timer);
 
         if(!checkPermissionOnDevice()) {
@@ -65,12 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
         setupUI();
         setupButtonHandler();
-        changeButtonsStatus(true, false);
     }
 
     private void setupUI() {
         //setup timer textview
         tvTimer.setTextColor(this.getResources().getColor(R.color.subText));
+
+        //setup buttons
+        changeButtonsStatus(true);
     }
 
     @Override
@@ -95,9 +98,16 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void changeButtonsStatus(boolean s1, boolean s2) {
-        btnRecord.setEnabled(s1);
-        btnStop.setEnabled(s2);
+    private void changeButtonsStatus(boolean onRecord) {
+        btnRecord.setEnabled(onRecord);
+        btnStop.setEnabled(!onRecord);
+        if (onRecord) {
+            btnRecord.setVisibility(View.VISIBLE);
+            btnStop.setVisibility(View.INVISIBLE);
+        } else {
+            btnRecord.setVisibility(View.INVISIBLE);
+            btnStop.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupButtonHandler() {
@@ -105,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkPermissionOnDevice()) {
-                    changeButtonsStatus(false, true);
+                    changeButtonsStatus(false);
                     startRecording();
                     startTimer();
                     Toast.makeText(getApplicationContext(), "Bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
@@ -118,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeButtonsStatus(true, false);
+                changeButtonsStatus(true);
                 stopRecording();
                 stopTimer();
                 String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
