@@ -1,0 +1,67 @@
+<android.support.v7.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        app:cardBackgroundColor="#FFF594"
+        app:cardCornerRadius="4dp"
+        app:contentPadding="6dp"
+        app:cardElevation="2dp">
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+    android:orientation="horizontal">
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            <TextView
+                    android:id="@+id/lecture_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/lecture_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:layout_marginTop="10dp"
+                    android:textSize="12sp"/>
+            <TextView
+                    android:id="@+id/lecture_note_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/ll_export_pdf"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:orientation="vertical">
+            <ImageView
+                    android:id="@+id/iv_export_pdf"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_pdf"
+            />
+            <TextView
+                    android:id="@+id/tv_export_pdf"
+                    android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:textAlignment="center"
+                    android:text="Export pdf"/>
+        </LinearLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/btn_talk"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.example.aiclassmate.view.custom.AnimatedFloatingActionButton
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center"/>
+
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_margin="16dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_add"
+            android:background="#E91E63"/>
+
+</FrameLayout>
