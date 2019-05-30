@@ -2,6 +2,7 @@ package com.example.vasr;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Environment;
@@ -33,11 +34,25 @@ public class ListAdapter extends BaseAdapter {
     private Context context;
     private MediaPlayer mediaPlayer;
     private ProgressDialog progressDialog;
+    private String errorMsg;
+    private Boolean isFailed = true;
 
     public ListAdapter(Context context,ArrayList<Audio> listAudios) {
         this.context = context;
         this.listAudios = listAudios;
         this.progressDialog = new ProgressDialog(context);
+        setupDialog();
+    }
+
+    private void setupDialog() {
+        progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (isFailed) {
+                    Toast.makeText(context,errorMsg,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -152,15 +167,16 @@ public class ListAdapter extends BaseAdapter {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                String errMsg = e.getMessage();
-                Log.w("Message failure",errMsg);
+                isFailed = true;
+                errorMsg = e.getMessage();
+                Log.w("Message failure",errorMsg);
                 progressDialog.dismiss();
-                Toast.makeText(context,errMsg,Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String mMessage = response.body().string();
+                isFailed = false;
                 progressDialog.dismiss();
                 if (response.isSuccessful()){
                     try {
@@ -169,7 +185,6 @@ public class ListAdapter extends BaseAdapter {
                         showResultScreen(text);
                     } catch (Exception e){
                         e.printStackTrace();
-                        Toast.makeText(context,e.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
                     }
                 }
             }

@@ -17,6 +17,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -28,7 +30,9 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnRecord, btnStop;
+    private ImageButton btnRecord, btnStop;
+    private TextView tvTimer;
+
     private String pcmPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.pcm";
     private String wavPathSave = "";
     private final int REQUEST_PERMISSION_CODE = 1000;
@@ -43,21 +47,33 @@ public class MainActivity extends AppCompatActivity {
     int BufferElements2Rec = 1024;
     int BytesPerElement = 2; // 2 bytes = 16 bits
 
+    private static final int MAX_TIME_IN_MILLIS = 600000;
+    private CountUpTimer countUpTimer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().setTitle("VASR");
 
-        btnRecord = findViewById(R.id.btn_record);
-        btnStop   = findViewById(R.id.btn_stop);
+        btnRecord = findViewById(R.id.ib_start_record);
+        btnStop   = findViewById(R.id.ib_stop_record);
+        tvTimer   = findViewById(R.id.tv_timer);
 
         if(!checkPermissionOnDevice()) {
             requestPermission();
         }
 
+        setupUI();
         setupButtonHandler();
-        changeButtonsStatus(true, false);
+    }
+
+    private void setupUI() {
+        //setup timer textview
+        tvTimer.setTextColor(this.getResources().getColor(R.color.subText));
+
+        //setup buttons
+        changeButtonsStatus(true);
     }
 
     @Override
@@ -82,9 +98,16 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void changeButtonsStatus(boolean s1, boolean s2) {
-        btnRecord.setEnabled(s1);
-        btnStop.setEnabled(s2);
+    private void changeButtonsStatus(boolean onRecord) {
+        btnRecord.setEnabled(onRecord);
+        btnStop.setEnabled(!onRecord);
+        if (onRecord) {
+            btnRecord.setVisibility(View.VISIBLE);
+            btnStop.setVisibility(View.INVISIBLE);
+        } else {
+            btnRecord.setVisibility(View.INVISIBLE);
+            btnStop.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupButtonHandler() {
@@ -92,8 +115,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkPermissionOnDevice()) {
-                    changeButtonsStatus(false, true);
+                    changeButtonsStatus(false);
                     startRecording();
+                    startTimer();
                     Toast.makeText(getApplicationContext(), "Bắt đầu ghi âm", Toast.LENGTH_SHORT).show();
                 } else {
                     requestPermission();
@@ -104,8 +128,9 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeButtonsStatus(true, false);
+                changeButtonsStatus(true);
                 stopRecording();
+                stopTimer();
                 String dateString = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
                 String wavFilename = "vasr_" + dateString + ".wav";
                 wavPathSave = Environment.getExternalStorageDirectory() + File.separator + wavFilename;
@@ -114,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Toast.makeText(getApplicationContext(), "Kết thúc ghi âm", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Đoạn ghi âm đã được lưu tại: " + wavPathSave, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -216,5 +241,30 @@ public class MainActivity extends AppCompatActivity {
     private void showAudioListScreen() {
         Intent intent = new Intent(this,AudioListActivity.class);
         startActivity(intent);
+    }
+
+    private void startTimer() {
+        tvTimer.setTextColor(this.getResources().getColor(R.color.colorPrimary));
+        countUpTimer = new CountUpTimer(MAX_TIME_IN_MILLIS) {
+            public void onTick(int second) {
+                int min = second / 60;
+                int sec = second % 60;
+                String strTime = String.format(Locale.getDefault(),"00:%02d:%02d",min,sec);
+                tvTimer.setText(strTime);
+            }
+
+            @Override
+            public void onFinish() {
+                super.onFinish();
+                btnStop.performClick();
+            }
+        };
+        countUpTimer.start();
+    }
+
+    private void stopTimer() {
+        countUpTimer.cancel();
+        tvTimer.setText("00:00:00");
+        tvTimer.setTextColor(this.getResources().getColor(R.color.subText));
     }
 }
