@@ -1,6 +1,7 @@
 package com.example.aiclassmate.view.activity
 
 import android.Manifest
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
@@ -18,6 +19,7 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 import android.net.Uri
+import android.support.v7.app.AlertDialog
 import com.example.aiclassmate.data.Lecture
 import java.io.File
 
@@ -91,22 +93,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun sharePdf(filePath: String) {
-//        val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
-//            when (which) {
-//                DialogInterface.BUTTON_POSITIVE -> {
-//
-//                    dialog.cancel()
-//                }
-//
-//                DialogInterface.BUTTON_NEGATIVE -> {
-//                    dialog.cancel()
-//                }
-//            }
-//        }
-//
-//        val builder = AlertDialog.Builder(this)
-//        builder.setMessage("Bạn có muốn share tài liệu này không?").setPositiveButton("Có", dialogClickListener)
-//            .setNegativeButton("Không", dialogClickListener).show()
+        val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> {
+
+                    dialog.cancel()
+                }
+
+                DialogInterface.BUTTON_NEGATIVE -> {
+                    dialog.cancel()
+                }
+            }
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Bạn có muốn chia sẻ tài liệu này không?").setPositiveButton("Có", dialogClickListener)
+            .setNegativeButton("Không", dialogClickListener)
+            .show()
+
         val intentShareFile = Intent(Intent.ACTION_SEND)
         val fileWithinMyDir = File(filePath)
 

@@ -26,7 +26,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
         with(lectureVH) {
             lectureName.text = lstLecture[p1].name
             lectureContent.text = lstLecture[p1].content
-            lectureNots.text = "${lstLecture[p1].noteList.size} notes"
+            lectureNots.text = "${lstLecture[p1].noteList.size} ghi chú"
 
             var lectureProcessing = false
 
@@ -52,7 +52,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
 
                             override fun onSuccess(filePath: String) {
                                 lectureProcessing = false
-                                activity.toast("Pdf Saved at: $filePath")
+                                activity.toast("Pdf lưu tại: $filePath")
                                 activity.sharePdf(filePath)
                             }
                         })

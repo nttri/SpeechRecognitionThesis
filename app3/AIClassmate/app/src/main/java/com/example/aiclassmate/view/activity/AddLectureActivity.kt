@@ -55,7 +55,7 @@ class AddLectureActivity : AppCompatActivity() {
                 tv_lec_title.text = lecture.name
 
                 noteList.addAll(lecture.noteList)
-                txt_note_count.text = "${noteList.size} ${if (noteList.size > 1) "Notes" else "Note"}"
+                txt_note_count.text = "${noteList.size} Ghi chú"
 
                 ed_lec_content.text.clear()
                 ed_lec_content.text.append(lecture.content)
@@ -128,7 +128,7 @@ class AddLectureActivity : AppCompatActivity() {
 
                     override fun onOtherAudioRecording() {
                         handler.postDelayed({
-                            toast("Đang record")
+                            toast("Đang thu âm")
                         }, 100)
                     }
 
@@ -234,7 +234,7 @@ class AddLectureActivity : AppCompatActivity() {
 
                         override fun onOtherAudioRecording() {
                             handler.postDelayed({
-                                toast("Đang record")
+                                toast("Đang thu âm")
                             }, 100)
                         }
 
@@ -266,7 +266,7 @@ class AddLectureActivity : AppCompatActivity() {
 
         btn_done_lecture.setOnClickListener {
             if (inProcessDone) {
-                toast("Đang xử lý save")
+                toast("Đang xử lý lưu")
                 return@setOnClickListener
             }
 
@@ -285,7 +285,7 @@ class AddLectureActivity : AppCompatActivity() {
 
         ll_create_note.setOnClickListener {
             val builder = AlertDialog.Builder(this)
-            builder.setTitle("New note")
+            builder.setTitle("Thêm ghi chú")
 
             // Set up the input
             val input = EditText(this)
@@ -293,17 +293,17 @@ class AddLectureActivity : AppCompatActivity() {
             builder.setView(input)
 
             // Set up the buttons
-            builder.setPositiveButton("Add") { dialog, _ ->
+            builder.setPositiveButton("Thêm") { dialog, _ ->
                 if (input.text.isEmpty()) {
                     dialog.cancel()
                     return@setPositiveButton
                 }
                 noteList.add(Note(content = input.text.toString()))
-                txt_note_count.text = "${noteList.size} ${if (noteList.size > 1) "Notes" else "Note"}"
+                txt_note_count.text = "${noteList.size} Ghi chú}"
                 dialog.cancel()
             }
 
-            builder.setNegativeButton("Cancel") { dialog, _ ->
+            builder.setNegativeButton("Bỏ qua") { dialog, _ ->
                 dialog.cancel()
             }
 
@@ -332,7 +332,7 @@ class AddLectureActivity : AppCompatActivity() {
                 val noteWraper = data?.getSerializableExtra(NoteActivity.NOTE_VIEW) as NoteWrapper
                 noteList.clear()
                 noteList.addAll(noteWraper.note)
-                txt_note_count.text = "${noteList.size} ${if (noteList.size > 1) "Notes" else "Note"}"
+                txt_note_count.text = "${noteList.size} Ghi chú"
             }
         }
     }

@@ -46,7 +46,7 @@ class NoteActivity : AppCompatActivity() {
 
         btn_add_note.setOnClickListener {
             val builder = AlertDialog.Builder(this)
-            builder.setTitle("New note")
+            builder.setTitle("Thêm ghi chú")
 
             // Set up the input
             val input = EditText(this)
@@ -54,7 +54,7 @@ class NoteActivity : AppCompatActivity() {
             builder.setView(input)
 
             // Set up the buttons
-            builder.setPositiveButton("Add") { dialog, _ ->
+            builder.setPositiveButton("Thêm") { dialog, _ ->
                 if (input.text.isEmpty()) {
                     dialog.cancel()
                     return@setPositiveButton
@@ -64,7 +64,7 @@ class NoteActivity : AppCompatActivity() {
                 dialog.cancel()
             }
 
-            builder.setNegativeButton("Cancel") { dialog, _ ->
+            builder.setNegativeButton("Bỏ qua") { dialog, _ ->
                 dialog.cancel()
             }
 
@@ -81,7 +81,7 @@ class NoteActivity : AppCompatActivity() {
 
     fun editNote(note: Note, pos: Int) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Edit note")
+        builder.setTitle("Chỉnh sửa")
 
         // Set up the input
         val input = EditText(this)
@@ -90,13 +90,13 @@ class NoteActivity : AppCompatActivity() {
         builder.setView(input)
 
         // Set up the buttons
-        builder.setPositiveButton("Confirm") { dialog, _ ->
+        builder.setPositiveButton("Đồng ý") { dialog, _ ->
             note.content = input.text.toString()
             lst_note.adapter?.notifyItemChanged(pos)
             dialog.cancel()
         }
 
-        builder.setNegativeButton("Cancel") { dialog, _ ->
+        builder.setNegativeButton("Bỏ qua") { dialog, _ ->
             dialog.cancel()
         }
 

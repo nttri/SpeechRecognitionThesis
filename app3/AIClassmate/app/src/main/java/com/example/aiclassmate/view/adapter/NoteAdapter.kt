@@ -21,7 +21,7 @@ class NoteAdapter(val activity: NoteActivity, val lstNote: List<Note>) :
 
     override fun onBindViewHolder(lectureVH: NoteAdapterVH, p1: Int) {
         with(lectureVH) {
-            noteTitle.text = "Note $p1"
+            noteTitle.text = "Ghi chú $p1"
             noteContent.text = lstNote[p1].content
 
             val clickListener: View.OnClickListener?
