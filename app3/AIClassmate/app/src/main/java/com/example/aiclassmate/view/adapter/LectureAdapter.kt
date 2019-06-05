@@ -12,6 +12,7 @@ import com.example.aiclassmate.view.activity.MainActivity
 import com.uttampanchasara.pdfgenerator.CreatePdf
 import kotlinx.android.synthetic.main.item_lecture_preview.view.*
 import org.jetbrains.anko.toast
+import java.text.SimpleDateFormat
 
 class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) :
     RecyclerView.Adapter<LectureAdapter.Companion.LectureAdapterVH>() {
@@ -38,11 +39,11 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
                     }
                     lectureProcessing = true
                     CreatePdf(activity)
-                        .setPdfName("Lecture ${System.currentTimeMillis()}")
+                        .setPdfName(buildFilePDFName(lstLecture[p1].name))
                         .openPrintDialog(false)
                         .setContentBaseUrl(null)
                         .setContent(buildContent(lstLecture[p1]))
-                        .setFilePath(Environment.getExternalStorageDirectory().absolutePath + "/MyPdf")
+                        .setFilePath(Environment.getExternalStorageDirectory().absolutePath + "/AIClassmate")
                         .setCallbackListener(object : CreatePdf.PdfCallbackListener {
                             override fun onFailure(errorMsg: String) {
                                 lectureProcessing = false
@@ -73,14 +74,25 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
     }
 
     fun buildContent(lecture: Lecture) = buildString {
-        append("<h1>").append(lecture.name).append("</h1><br/><br/>")
+        append("<h1>").append(lecture.name.toUpperCase()).append("</h1><br/><br/>")
         append(lecture.content)
         if (lecture.noteList.isNotEmpty()) {
-            append("<br/><br/><br/>Notes:<br/><br/>")
+            append("<br/><br/><br/><h2>Ghi chú:</h2>")
             lecture.noteList.forEach {
                 append("- ${it.content}<br/>")
             }
         }
+    }
+
+    fun buildFilePDFName(lectureTitle: String) = buildString {
+        val lstToken = lectureTitle.split(' ')
+        append("Bai_")
+        for (token in lstToken) {
+            append(token.get(0).toUpperCase())
+        }
+        append("_")
+        val sdf = SimpleDateFormat("dd_MM_yyyy")
+        append(sdf.format(System.currentTimeMillis()))
     }
 
     companion object {
