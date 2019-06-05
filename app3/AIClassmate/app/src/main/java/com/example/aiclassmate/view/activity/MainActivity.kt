@@ -96,7 +96,21 @@ class MainActivity : AppCompatActivity() {
         val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
             when (which) {
                 DialogInterface.BUTTON_POSITIVE -> {
+                    val intentShareFile = Intent(Intent.ACTION_SEND)
+                    val fileWithinMyDir = File(filePath)
 
+                    if (fileWithinMyDir.exists()) {
+                        intentShareFile.type = "application/pdf"
+                        intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://$filePath"))
+
+                        intentShareFile.putExtra(
+                            Intent.EXTRA_SUBJECT,
+                            "Sharing File..."
+                        )
+                        intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...")
+
+                        startActivity(Intent.createChooser(intentShareFile, "Share File"))
+                    }
                     dialog.cancel()
                 }
 
@@ -111,22 +125,8 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Không", dialogClickListener)
             .show()
 
-        val intentShareFile = Intent(Intent.ACTION_SEND)
-        val fileWithinMyDir = File(filePath)
-
-        if (fileWithinMyDir.exists()) {
-            intentShareFile.type = "application/pdf"
-            intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://$filePath"))
-
-            intentShareFile.putExtra(
-                Intent.EXTRA_SUBJECT,
-                "Sharing File..."
-            )
-            intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...")
-
-            startActivity(Intent.createChooser(intentShareFile, "Share File"))
-        }
     }
+
 
     fun openLecture(lecture: Lecture) {
         val intent = Intent(this, AddLectureActivity::class.java)
