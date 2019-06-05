@@ -1,0 +1,2 @@
+pass: dung12345
+keystorepass: dung54321
