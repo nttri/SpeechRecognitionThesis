@@ -69,15 +69,16 @@
             android:textSize="14sp"
             android:background="#74FFEB3B"
             android:text="0 Ghi chú"/>
-    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="#74FFEB3B">
         <EditText
                 android:id="@+id/ed_lec_content"
                 android:inputType="textMultiLine"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="400dp"
                 android:background="#74FFEB3B"
                 android:gravity="top"
                 android:padding="8dp"
+                android:hint="Nhập hoặc đọc nội dung bài học"
         />
 
         <FrameLayout

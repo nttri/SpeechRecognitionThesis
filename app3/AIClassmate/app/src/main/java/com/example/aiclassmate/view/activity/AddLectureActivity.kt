@@ -31,7 +31,7 @@ class AddLectureActivity : AppCompatActivity() {
     private val handler = Handler()
     private var isEditing = false
     private var micAllow = false
-    private val titleAsrTimeout = 3000L
+    private val titleAsrTimeout = 6000L
     private val contentAsrTimeout = -1L
     private val clickAsrLimit = 1000L
     private var counterEdt = 0
