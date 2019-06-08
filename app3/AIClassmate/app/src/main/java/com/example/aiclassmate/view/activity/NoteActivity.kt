@@ -35,6 +35,8 @@ class NoteActivity : AppCompatActivity() {
         setContentView(R.layout.activity_view_note)
 
         setSupportActionBar(main_toolbar)
+        this.supportActionBar?.title = "Ghi chú"
+
 
         intent?.let {
             noteList.addAll((it.getSerializableExtra(NOTE_VIEW) as NoteWrapper).note)

@@ -304,7 +304,7 @@ class AddLectureActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
                 noteList.add(Note(content = input.text.toString()))
-                txt_note_count.text = "${noteList.size} Ghi chú}"
+                txt_note_count.text = "${noteList.size} Ghi chú"
                 dialog.cancel()
             }
 
