@@ -98,7 +98,8 @@ class AddLectureActivity : AppCompatActivity() {
                         )
                         fr_asr_title.visibility = View.VISIBLE
                         tv_asr_flash.text = "Hãy đọc tiêu đề"
-                        ll_done_rec.visibility = View.GONE
+                        ll_done.visibility = View.GONE
+                        ll_rec.visibility = View.GONE
                         ll_note_root.visibility = View.GONE
                         txt_note_count.visibility = View.GONE
                         mic_title.visibility = View.INVISIBLE
@@ -115,7 +116,8 @@ class AddLectureActivity : AppCompatActivity() {
                     override fun onAudioComplete(text: String) {
                         if (alreadyCancelTitleAsr) return
                         handler.postDelayed({
-                            ll_done_rec.visibility = View.VISIBLE
+                            ll_done.visibility = View.VISIBLE
+                            ll_rec.visibility = View.VISIBLE
                             ll_note_root.visibility = View.VISIBLE
                             txt_note_count.visibility = View.VISIBLE
                             mic_title_loader.visibility = View.INVISIBLE
@@ -135,7 +137,8 @@ class AddLectureActivity : AppCompatActivity() {
                     override fun onAsrError(err: String) {
                         if (alreadyCancelTitleAsr) return
                         handler.postDelayed({
-                            ll_done_rec.visibility = View.VISIBLE
+                            ll_done.visibility = View.VISIBLE
+                            ll_rec.visibility = View.VISIBLE
                             ll_note_root.visibility = View.VISIBLE
                             txt_note_count.visibility = View.VISIBLE
                             mic_title_loader.visibility = View.INVISIBLE
@@ -159,7 +162,8 @@ class AddLectureActivity : AppCompatActivity() {
         btn_stop_asr_title.setOnClickListener {
             alreadyCancelTitleAsr = true
             AsrProcess.stopAndDoneProcess()
-            ll_done_rec.visibility = View.VISIBLE
+            ll_done.visibility = View.VISIBLE
+            ll_rec.visibility = View.VISIBLE
             ll_note_root.visibility = View.VISIBLE
             txt_note_count.visibility = View.VISIBLE
             mic_title_loader.visibility = View.INVISIBLE

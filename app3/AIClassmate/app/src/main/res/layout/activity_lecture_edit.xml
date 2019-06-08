@@ -15,12 +15,12 @@
         <FrameLayout
                 android:id="@+id/fl_lec_title"
                 android:layout_width="0dp"
-                     android:layout_weight="1"
-                     android:layout_height="50dp"
-                     android:layout_marginLeft="10dp"
-                     android:layout_marginRight="10dp"
-                     android:layout_marginTop="2dp"
-                     android:layout_marginBottom="2dp">
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp">
             <EditText
                     android:id="@+id/ed_lec_title"
                     android:layout_width="match_parent"
@@ -28,7 +28,7 @@
                     android:visibility="gone"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:hint="Nhập tên bài giảng hoặc đọc"/>
+                    android:hint="Nhập hoặc đọc tên bài giảng"/>
             <TextView
                     android:id="@+id/tv_lec_title"
                     android:layout_width="match_parent"
@@ -68,8 +68,7 @@
             android:padding="8dp"
             android:textSize="14sp"
             android:background="#74FFEB3B"
-            android:text="0 Note"/>
-
+            android:text="0 Ghi chú"/>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
         <EditText
                 android:id="@+id/ed_lec_content"
@@ -113,57 +112,60 @@
 
         <LinearLayout
                 android:id="@+id/ll_note_root"
-                android:layout_width="wrap_content"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="bottom|left"
                 android:layout_marginLeft="16dp"
-        android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp">
             <LinearLayout
                     android:id="@+id/ll_view_note"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:background="@drawable/btn_round"
                     android:padding="5dp">
                 <ImageView
                         android:layout_width="25dp"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_note_view"
+                        android:layout_height="25dp"
+                        android:src="@drawable/ic_view_note"
                         android:layout_gravity="center_vertical"
                 />
-                <TextView android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_gravity="center_vertical"
-                          android:layout_marginLeft="2dp"
-                          android:layout_marginRight="2dp"
-                          android:text="View"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:text="Xem ghi chú"/>
             </LinearLayout>
             <LinearLayout
                     android:id="@+id/ll_create_note"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/btn_round"
-                    android:layout_marginTop="8dp"
-            android:padding="5dp">
+                    android:orientation="horizontal"
+                    android:background="@drawable/btn_round"
+                    android:layout_marginTop="16dp"
+                    android:padding="5dp">
                 <ImageView
                         android:layout_width="25dp"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_note_add"
                         android:layout_gravity="center_vertical"
                 />
-                <TextView android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_gravity="center_vertical"
-                          android:layout_marginLeft="2dp"
-                          android:layout_marginRight="2dp"
-                android:text="Note"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:text="Thêm ghi chú"/>
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
-                android:id="@+id/ll_done_rec"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:id="@+id/ll_done"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
                 android:orientation="vertical"
                 android:layout_gravity="bottom|right">
             <android.support.design.widget.FloatingActionButton
@@ -172,7 +174,15 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:padding="5dp"
-                    android:src="@drawable/ic_white_done"/>
+                    android:src="@drawable/ic_white_done"
+                    app:backgroundTint="#3fba3b"/>
+        </LinearLayout>
+        <LinearLayout
+                android:id="@+id/ll_rec"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:orientation="vertical"
+                android:layout_gravity="bottom|center" >
             <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
                 <com.example.aiclassmate.view.custom.AnimatedFloatingActionButton
                         android:id="@+id/btn_lec_record_shadow"
