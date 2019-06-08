@@ -31,20 +31,17 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_view_note)
 
         setSupportActionBar(main_toolbar)
         this.supportActionBar?.title = "Ghi chú"
-
 
         intent?.let {
             noteList.addAll((it.getSerializableExtra(NOTE_VIEW) as NoteWrapper).note)
         }
 
         lst_note.adapter = NoteAdapter(this@NoteActivity, noteList)
-        lst_note.layoutManager =
-            LinearLayoutManager(this@NoteActivity, LinearLayoutManager.VERTICAL, false)
+        lst_note.layoutManager = LinearLayoutManager(this@NoteActivity, LinearLayoutManager.VERTICAL, false)
 
         btn_add_note.setOnClickListener {
             val builder = AlertDialog.Builder(this)
@@ -114,7 +111,9 @@ class NoteActivity : AppCompatActivity() {
 
     fun deleteNote(p1: Int) {
         noteList.removeAt(p1)
+        lst_note.removeViewAt(p1)
         lst_note.adapter?.notifyItemRemoved(p1)
+        lst_note.adapter?.notifyItemRangeChanged(p1, noteList.size)
     }
 
     override fun onBackPressed() {
