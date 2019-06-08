@@ -34,7 +34,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
             clickListener = View.OnClickListener {
                 if (activity.writeAllow) {
                     if (lectureProcessing) {
-                        activity.toast("Đang tạo pdf")
+                        activity.toast("Đang tạo tập tin pdf")
                         return@OnClickListener
                     }
                     lectureProcessing = true
@@ -52,7 +52,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
 
                             override fun onSuccess(filePath: String) {
                                 lectureProcessing = false
-                                activity.toast("Pdf lưu tại: $filePath")
+                                activity.toast("Tập tin pdf đã được lưu tại: $filePath")
                                 activity.sharePdf(filePath)
                             }
                         })

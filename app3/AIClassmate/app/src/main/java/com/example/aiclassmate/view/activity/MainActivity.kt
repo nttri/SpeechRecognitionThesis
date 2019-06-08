@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     pendingListener?.onClick(null)
                 }
                 else {
-                    toast("Xin hãy cấp quyền để lưu pdf")
+                    toast("Xin hãy cấp quyền để lưu tập tin pdf")
                 }
             }
         }

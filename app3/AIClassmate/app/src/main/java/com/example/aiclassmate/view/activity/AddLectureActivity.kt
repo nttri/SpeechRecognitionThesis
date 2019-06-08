@@ -195,7 +195,7 @@ class AddLectureActivity : AppCompatActivity() {
 
         btn_lec_record.setOnClickListener {
             if (System.currentTimeMillis() - lastTimeAsrContent < clickAsrLimit) {
-                toast("Don't harass me")
+                toast("...")
                 return@setOnClickListener
             }
             lastTimeAsrContent = System.currentTimeMillis()
@@ -355,7 +355,7 @@ class AddLectureActivity : AppCompatActivity() {
                     )
                 )
                 uiThread {
-                    toast("Save lecture done")
+                    toast("Lưu bài giảng thành công")
                     finish()
                 }
             }
