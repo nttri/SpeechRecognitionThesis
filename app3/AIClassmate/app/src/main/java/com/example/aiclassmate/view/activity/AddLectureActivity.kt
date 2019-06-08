@@ -3,6 +3,7 @@ package com.example.aiclassmate.view.activity
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -421,5 +422,26 @@ class AddLectureActivity : AppCompatActivity() {
             ),
             REQUEST_PERMISSION_CODE
         )
+    }
+
+    override fun onBackPressed() {
+        val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> {
+                    btn_done_lecture.performClick()
+                    dialog.cancel()
+                }
+
+                DialogInterface.BUTTON_NEGATIVE -> {
+                    dialog.cancel()
+                    finish()
+                }
+            }
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Bạn có muốn lưu bài giảng không?").setPositiveButton("Có", dialogClickListener)
+            .setNegativeButton("Không", dialogClickListener)
+            .show()
     }
 }
