@@ -31,7 +31,7 @@ class AddLectureActivity : AppCompatActivity() {
     private val handler = Handler()
     private var isEditing = false
     private var micAllow = false
-    private val titleAsrTimeout = 6000L
+    private val titleAsrTimeout = 4000L
     private val contentAsrTimeout = -1L
     private val clickAsrLimit = 1000L
     private var counterEdt = 0
@@ -210,7 +210,7 @@ class AddLectureActivity : AppCompatActivity() {
                     repeatContent = object : AsrUICallback {
                         override fun onStartAudio() {
                             asrContentRecording = true
-                            btn_lec_record.imageResource = R.drawable.ic_close_mic
+                            btn_lec_record.imageResource = R.drawable.ic_stop_mic
                             btn_lec_record_shadow.visibility = View.VISIBLE
                             (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
                                 currentFocus?.windowToken,
@@ -281,7 +281,7 @@ class AddLectureActivity : AppCompatActivity() {
                 saveActionPending = true
                 asrContentRecording = false
                 AsrProcess.stopRecordingManually()
-                toast("Xin hãy đợi bộ nhận diện kết thúc")
+                toast("Vui lòng chờ bộ nhận diện kết thúc")
             }
             else {
                 saveAction()
@@ -345,7 +345,7 @@ class AddLectureActivity : AppCompatActivity() {
     private fun saveAction() {
         inProcessDone = false
         if (ed_lec_title.text.isEmpty()) {
-            toast("Xin hãy nhập tiêu đề")
+            toast("Vui lòng nhập tiêu đề")
         } else {
             doAsync {
                 LectureDBLogic.addLecture(
@@ -404,6 +404,9 @@ class AddLectureActivity : AppCompatActivity() {
     }
 
     private fun finishTitleEdt(text: String) {
+        if (text.equals("") || text.equals("\n")) {
+            return
+        }
         tv_lec_title.visibility = View.VISIBLE
         ed_lec_title.visibility = View.GONE
         tv_lec_title.text = text

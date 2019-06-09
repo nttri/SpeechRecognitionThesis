@@ -129,7 +129,7 @@
                 <ImageView
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:src="@drawable/ic_view_note"
+                        android:src="@drawable/ic_eye"
                         android:layout_gravity="center_vertical"
                 />
                 <TextView
