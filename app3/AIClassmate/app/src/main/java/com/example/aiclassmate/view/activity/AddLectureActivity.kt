@@ -1,11 +1,13 @@
 package com.example.aiclassmate.view.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
@@ -99,8 +101,7 @@ class AddLectureActivity : AppCompatActivity() {
                         )
                         fr_asr_title.visibility = View.VISIBLE
                         tv_asr_flash.text = "Hãy đọc tiêu đề"
-                        ll_done.visibility = View.GONE
-                        ll_rec.visibility = View.GONE
+                        ll_done_rec.visibility = View.GONE
                         ll_note_root.visibility = View.GONE
                         txt_note_count.visibility = View.GONE
                         mic_title.visibility = View.INVISIBLE
@@ -117,8 +118,7 @@ class AddLectureActivity : AppCompatActivity() {
                     override fun onAudioComplete(text: String) {
                         if (alreadyCancelTitleAsr) return
                         handler.postDelayed({
-                            ll_done.visibility = View.VISIBLE
-                            ll_rec.visibility = View.VISIBLE
+                            ll_done_rec.visibility = View.VISIBLE
                             ll_note_root.visibility = View.VISIBLE
                             txt_note_count.visibility = View.VISIBLE
                             mic_title_loader.visibility = View.INVISIBLE
@@ -138,8 +138,7 @@ class AddLectureActivity : AppCompatActivity() {
                     override fun onAsrError(err: String) {
                         if (alreadyCancelTitleAsr) return
                         handler.postDelayed({
-                            ll_done.visibility = View.VISIBLE
-                            ll_rec.visibility = View.VISIBLE
+                            ll_done_rec.visibility = View.VISIBLE
                             ll_note_root.visibility = View.VISIBLE
                             txt_note_count.visibility = View.VISIBLE
                             mic_title_loader.visibility = View.INVISIBLE
@@ -163,8 +162,7 @@ class AddLectureActivity : AppCompatActivity() {
         btn_stop_asr_title.setOnClickListener {
             alreadyCancelTitleAsr = true
             AsrProcess.stopAndDoneProcess()
-            ll_done.visibility = View.VISIBLE
-            ll_rec.visibility = View.VISIBLE
+            ll_done_rec.visibility = View.VISIBLE
             ll_note_root.visibility = View.VISIBLE
             txt_note_count.visibility = View.VISIBLE
             mic_title_loader.visibility = View.INVISIBLE
@@ -212,6 +210,7 @@ class AddLectureActivity : AppCompatActivity() {
                             asrContentRecording = true
                             btn_lec_record.imageResource = R.drawable.ic_stop_mic
                             btn_lec_record_shadow.visibility = View.VISIBLE
+                            btn_done_lecture.isEnabled = false
                             (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
                                 currentFocus?.windowToken,
                                 InputMethodManager.HIDE_NOT_ALWAYS
@@ -230,6 +229,7 @@ class AddLectureActivity : AppCompatActivity() {
                                 handler.postDelayed({
                                     btn_lec_record.imageResource = R.drawable.ic_white_mic
                                     btn_lec_record_shadow.visibility = View.INVISIBLE
+                                    btn_done_lecture.isEnabled = true
                                     if (saveActionPending == true) {
                                         saveAction()
                                     }
@@ -250,6 +250,7 @@ class AddLectureActivity : AppCompatActivity() {
                                 handler.postDelayed({
                                     btn_lec_record.imageResource = R.drawable.ic_white_mic
                                     btn_lec_record_shadow.visibility = View.INVISIBLE
+                                    btn_done_lecture.isEnabled = true
                                     if (saveActionPending == true) {
                                         saveAction()
                                     }

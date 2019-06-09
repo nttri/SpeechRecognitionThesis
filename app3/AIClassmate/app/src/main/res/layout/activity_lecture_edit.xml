@@ -68,17 +68,20 @@
             android:padding="8dp"
             android:textSize="14sp"
             android:background="#74FFEB3B"
-            android:text="0 Ghi chú"/>
+            android:text="0 Ghi chú"
+            android:fontFamily="sans-serif"/>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="#74FFEB3B">
         <EditText
                 android:id="@+id/ed_lec_content"
                 android:inputType="textMultiLine"
                 android:layout_width="match_parent"
-                android:layout_height="400dp"
+                android:layout_height="350dp"
                 android:background="#74FFEB3B"
                 android:gravity="top"
                 android:padding="8dp"
                 android:hint="Nhập hoặc đọc nội dung bài học"
+                android:textSize="19sp"
+                android:fontFamily="sans-serif"
         />
 
         <FrameLayout
@@ -138,7 +141,9 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="2dp"
                         android:layout_marginRight="2dp"
-                        android:text="Xem ghi chú"/>
+                        android:text="Xem ghi chú"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif"/>
             </LinearLayout>
             <LinearLayout
                     android:id="@+id/ll_create_note"
@@ -160,30 +165,17 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="2dp"
                         android:layout_marginRight="2dp"
-                        android:text="Thêm ghi chú"/>
+                        android:text="Thêm ghi chú"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
-                android:id="@+id/ll_done"
+                android:id="@+id/ll_done_rec"
                 android:layout_width="wrap_content"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="bottom|right">
-            <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/btn_done_lecture"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:padding="5dp"
-                    android:src="@drawable/ic_white_done"
-                    app:backgroundTint="#3fba3b"/>
-        </LinearLayout>
-        <LinearLayout
-                android:id="@+id/ll_rec"
-                android:layout_width="wrap_content"
-                android:layout_height="100dp"
-                android:orientation="vertical"
-                android:layout_gravity="bottom|center" >
             <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
                 <com.example.aiclassmate.view.custom.AnimatedFloatingActionButton
                         android:id="@+id/btn_lec_record_shadow"
@@ -199,6 +191,15 @@
                         android:padding="5dp"
                         android:src="@drawable/ic_white_mic"/>
             </FrameLayout>
+            <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/btn_done_lecture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_white_done"
+                    app:backgroundTint="#3fba3b"
+                    android:visibility="visible"/>
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>
