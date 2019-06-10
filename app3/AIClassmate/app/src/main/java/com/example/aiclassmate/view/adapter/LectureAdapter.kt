@@ -86,7 +86,9 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
 
     fun buildFilePDFName(lectureTitle: String) = buildString {
         append(lectureTitle.replace(' ', '_').toUpperCase())
-        append("_")
+        if (this.lastIndexOf('_') != this.length - 1) {
+            append("_")
+        }
         val sdf = SimpleDateFormat("dd_MM_yyyy")
         append(sdf.format(System.currentTimeMillis()))
     }
