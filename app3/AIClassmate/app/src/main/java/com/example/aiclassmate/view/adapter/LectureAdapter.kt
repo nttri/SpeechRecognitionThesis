@@ -77,7 +77,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
         append("<h1>").append(lecture.name.toUpperCase()).append("</h1><br/><br/>")
         append(lecture.content)
         if (lecture.noteList.isNotEmpty()) {
-            append("<br/><br/><br/><h2>Ghi chú:</h2>")
+            append("<br/><br/><br/><h3>Ghi chú:</h3>")
             lecture.noteList.forEach {
                 append("- ${it.content}<br/>")
             }
@@ -85,13 +85,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
     }
 
     fun buildFilePDFName(lectureTitle: String) = buildString {
-//        val lstToken = lectureTitle.split(' ')
-//        append("Bai_")
-//        for (token in lstToken) {
-//            append(token.get(0).toUpperCase())
-//        }
-//        append("_")
-        append(lectureTitle)
+        append(lectureTitle.replace(' ', '_').toUpperCase())
         append("_")
         val sdf = SimpleDateFormat("dd_MM_yyyy")
         append(sdf.format(System.currentTimeMillis()))
