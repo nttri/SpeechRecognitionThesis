@@ -211,6 +211,7 @@ class AddLectureActivity : AppCompatActivity() {
                             btn_lec_record.imageResource = R.drawable.ic_stop_mic
                             btn_lec_record_shadow.visibility = View.VISIBLE
                             btn_done_lecture.isEnabled = false
+                            btn_done_lecture.backgroundTintList = this@AddLectureActivity.resources.getColorStateList(R.color.colorDisableBtn)
                             (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
                                 currentFocus?.windowToken,
                                 InputMethodManager.HIDE_NOT_ALWAYS
@@ -230,6 +231,7 @@ class AddLectureActivity : AppCompatActivity() {
                                     btn_lec_record.imageResource = R.drawable.ic_white_mic
                                     btn_lec_record_shadow.visibility = View.INVISIBLE
                                     btn_done_lecture.isEnabled = true
+                                    btn_done_lecture.backgroundTintList = this@AddLectureActivity.resources.getColorStateList(R.color.colorEnableDoneBtn)
                                     if (saveActionPending == true) {
                                         saveAction()
                                     }
@@ -251,6 +253,7 @@ class AddLectureActivity : AppCompatActivity() {
                                     btn_lec_record.imageResource = R.drawable.ic_white_mic
                                     btn_lec_record_shadow.visibility = View.INVISIBLE
                                     btn_done_lecture.isEnabled = true
+                                    btn_done_lecture.backgroundTintList = this@AddLectureActivity.resources.getColorStateList(R.color.colorEnableDoneBtn)
                                     if (saveActionPending == true) {
                                         saveAction()
                                     }
@@ -429,6 +432,9 @@ class AddLectureActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        if (btn_done_lecture.isEnabled.not()) {
+            return
+        }
         val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
             when (which) {
                 DialogInterface.BUTTON_POSITIVE -> {
