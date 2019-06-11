@@ -35,10 +35,7 @@ def variable_on_worker_level(name, shape, initializer):
     used to create a variable in CPU memory.
     '''
     # Use the /cpu:0 device on worker_device for scoped operations
-    if len(FLAGS.ps_hosts) == 0:
-        device = Config.worker_device
-    else:
-        device = tf.train.replica_device_setter(worker_device=Config.worker_device, cluster=Config.cluster)
+    device = Config.worker_device
 
     with tf.device(device):
         # Create or get apropos variable
@@ -225,10 +222,7 @@ def get_tower_results(model_feeder, optimizer, dropout_rates):
         # Loop over available_devices
         for i in range(len(Config.available_devices)):
             # Execute operations of tower i on device i
-            if len(FLAGS.ps_hosts) == 0:
-                device = Config.available_devices[i]
-            else:
-                device = tf.train.replica_device_setter(worker_device=Config.available_devices[i], cluster=Config.cluster)
+            device = Config.available_devices[i]
             with tf.device(device):
                 # Create a scope for all operations of tower i
                 with tf.name_scope('tower_%d' % i) as scope:
@@ -328,20 +322,6 @@ def log_grads_and_vars(grads_and_vars):
         log_variable(variable, gradient=gradient)
 
 
-# Helpers
-# =======
-
-def send_token_to_ps(session, kill=False):
-    # Sending our token (the task_index as a debug opportunity) to each parameter server.
-    # kill switch tokens are negative and decremented by 1 to deal with task_index 0
-    token = -FLAGS.task_index-1 if kill else FLAGS.task_index
-    kind = 'kill switch' if kill else 'stop'
-    for index, enqueue in enumerate(Config.done_enqueues):
-        log_debug('Sending %s token to ps %d...' % (kind, index))
-        session.run(enqueue, feed_dict={ Config.token_placeholder: token })
-        log_debug('Sent %s token to ps %d.' % (kind, index))
-
-
 def train(server=None):
     r'''
     Trains the network on a given server of a cluster.
@@ -363,8 +343,7 @@ def train(server=None):
                             FLAGS.train_batch_size,
                             Config.n_input,
                             Config.n_context,
-                            Config.alphabet,
-                            hdf5_cache_path=FLAGS.train_cached_features_path)
+                            Config.alphabet)
 
     train_set = DataSet(train_data,
                         FLAGS.train_batch_size,
@@ -376,8 +355,7 @@ def train(server=None):
                           FLAGS.dev_batch_size,
                           Config.n_input,
                           Config.n_context,
-                          Config.alphabet,
-                          hdf5_cache_path=FLAGS.dev_cached_features_path)
+                          Config.alphabet)
 
     dev_set = DataSet(dev_data,
                       FLAGS.dev_batch_size,
@@ -394,12 +372,6 @@ def train(server=None):
 
     # Create the optimizer
     optimizer = create_optimizer()
-
-    # Synchronous distributed training is facilitated by a special proxy-optimizer
-    if not server is None:
-        optimizer = tf.train.SyncReplicasOptimizer(optimizer,
-                                                   replicas_to_aggregate=FLAGS.replicas_to_agg,
-                                                   total_num_replicas=FLAGS.replicas)
 
     # Get the data_set specific graph end-points
     gradients, loss = get_tower_results(model_feeder, optimizer, dropout_rates)
@@ -443,9 +415,6 @@ def train(server=None):
             log_debug('Closing queues...')
             model_feeder.close_queues(session)
             log_debug('Queues closed.')
-
-            # Telling the ps that we are done
-            send_token_to_ps(session)
 
     # Collecting the hooks
     hooks = [CoordHook()]
@@ -595,11 +564,6 @@ def train(server=None):
                 # Calling all hook's end() methods to end blocking calls
                 for hook in hooks:
                     hook.end(session)
-                # Only chief has a SyncReplicasOptimizer queue runner that needs to be stopped for unblocking process exit.
-                # A rather graceful way to do this is by stopping the ps.
-                # Only one party can send it w/o failing.
-                if Config.is_chief:
-                    send_token_to_ps(session, kill=True)
                 sys.exit(1)
 
         log_debug('Session closed.')
@@ -622,8 +586,7 @@ def test():
                            FLAGS.test_batch_size,
                            Config.n_input,
                            Config.n_context,
-                           Config.alphabet,
-                           hdf5_cache_path=FLAGS.test_cached_features_path)
+                           Config.alphabet)
 
     graph = create_inference_graph(batch_size=FLAGS.test_batch_size, n_steps=-1)
     evaluate.evaluate(test_data, graph)
@@ -730,16 +693,15 @@ def main(_):
     initialize_globals()
 
     if FLAGS.train or FLAGS.test:
-        if len(FLAGS.worker_hosts) == 0:
-            # Only one local task: this process (default case - no cluster)
+        # Only one local task: this process (default case - no cluster)
+        with tf.Graph().as_default():
+            tf.set_random_seed(FLAGS.random_seed)
+            train()
+        # Now do a final test epoch
+        if FLAGS.test:
             with tf.Graph().as_default():
-                tf.set_random_seed(FLAGS.random_seed)
-                train()
-            # Now do a final test epoch
-            if FLAGS.test:
-                with tf.Graph().as_default():
-                    test()
-            log_debug('Done.')
+                test()
+        log_debug('Done.')
 
     # Are we the main process?
     if Config.is_chief:

@@ -14,23 +14,6 @@ def create_flags():
     tf.app.flags.DEFINE_string  ('dev_files',        '',          'comma separated list of files specifying the dataset used for validation. multiple files will get merged')
     tf.app.flags.DEFINE_string  ('test_files',       '',          'comma separated list of files specifying the dataset used for testing. multiple files will get merged')
 
-    tf.app.flags.DEFINE_string  ('train_cached_features_path',      '',          'comma separated list of files specifying the dataset used for training. multiple files will get merged')
-    tf.app.flags.DEFINE_string  ('dev_cached_features_path',        '',          'comma separated list of files specifying the dataset used for validation. multiple files will get merged')
-    tf.app.flags.DEFINE_string  ('test_cached_features_path',       '',          'comma separated list of files specifying the dataset used for testing. multiple files will get merged')
-
-    # Cluster configuration
-    # =====================
-
-    tf.app.flags.DEFINE_string  ('ps_hosts',         '',          'parameter servers - comma separated list of hostname:port pairs')
-    tf.app.flags.DEFINE_string  ('worker_hosts',     '',          'workers - comma separated list of hostname:port pairs')
-    tf.app.flags.DEFINE_string  ('job_name',         'localhost', 'job name - one of localhost (default), worker, ps')
-    tf.app.flags.DEFINE_integer ('task_index',       0,           'index of task within the job - worker with index 0 will be the chief')
-    tf.app.flags.DEFINE_integer ('replicas',         -1,          'total number of replicas - if negative, its absolute value is multiplied by the number of workers')
-    tf.app.flags.DEFINE_integer ('replicas_to_agg',  -1,          'number of replicas to aggregate - if negative, its absolute value is multiplied by the number of workers')
-    tf.app.flags.DEFINE_string  ('coord_host',       'localhost', 'coordination server host')
-    tf.app.flags.DEFINE_integer ('coord_port',       2500,        'coordination server port')
-    tf.app.flags.DEFINE_integer ('iters_per_worker', 1,           'number of train or inference iterations per worker before results are sent back to coordinator')
-
     # Global Constants
     # ================
 

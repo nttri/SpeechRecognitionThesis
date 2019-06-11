@@ -27,24 +27,11 @@ Config = ConfigSingleton()
 def initialize_globals():
     c = AttrDict()
 
-    # ps and worker hosts required for p2p cluster setup
-    FLAGS.ps_hosts = list(filter(len, FLAGS.ps_hosts.split(',')))
-    FLAGS.worker_hosts = list(filter(len, FLAGS.worker_hosts.split(',')))
-
-    # Create a cluster from the parameter server and worker hosts.
-    c.cluster = tf.train.ClusterSpec({'ps': FLAGS.ps_hosts, 'worker': FLAGS.worker_hosts})
-
     # The absolute number of computing nodes - regardless of cluster or single mode
-    num_workers = max(1, len(FLAGS.worker_hosts))
-
-    # If replica numbers are negative, we multiply their absolute values with the number of workers
-    if FLAGS.replicas < 0:
-        FLAGS.replicas = num_workers * -FLAGS.replicas
-    if FLAGS.replicas_to_agg < 0:
-        FLAGS.replicas_to_agg = num_workers * -FLAGS.replicas_to_agg
+    num_workers = 1
 
     # The device path base for this node
-    c.worker_device = '/job:%s/task:%d' % (FLAGS.job_name, FLAGS.task_index)
+    c.worker_device = '/job:%s/task:%d' % ('localhost', 0)
 
     # This node's CPU device
     c.cpu_device = c.worker_device + '/cpu:0'
@@ -109,27 +96,7 @@ def initialize_globals():
     # Units in the sixth layer = number of characters in the target language plus one
     c.n_hidden_6 = c.alphabet.size() + 1 # +1 for CTC blank label
 
-    # Queues that are used to gracefully stop parameter servers.
-    # Each queue stands for one ps. A finishing worker sends a token to each queue before joining/quitting.
-    # Each ps will dequeue as many tokens as there are workers before joining/quitting.
-    # This ensures parameter servers won't quit, if still required by at least one worker and
-    # also won't wait forever (like with a standard `server.join()`).
-    done_queues = []
-    for i, ps in enumerate(FLAGS.ps_hosts):
-        # Queues are hosted by their respective owners
-        with tf.device('/job:ps/task:%d' % i):
-            done_queues.append(tf.FIFOQueue(1, tf.int32, shared_name=('queue%i' % i)))
-
-    # Placeholder to pass in the worker's index as token
-    c.token_placeholder = tf.placeholder(tf.int32)
-
-    # Enqueue operations for each parameter server
-    c.done_enqueues = [queue.enqueue(c.token_placeholder) for queue in done_queues]
-
-    # Dequeue operations for each parameter server
-    c.done_dequeues = [queue.dequeue() for queue in done_queues]
-
     # Determine, if we are the chief worker
-    c.is_chief = len(FLAGS.worker_hosts) == 0 or (FLAGS.task_index == 0 and FLAGS.job_name == 'worker')
+    c.is_chief = True
 
     ConfigSingleton._config = c

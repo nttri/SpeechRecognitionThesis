@@ -113,7 +113,7 @@ class Epoch(object):
         self.jobs_running = []
         self.jobs_done = []
         for i in range(self.num_jobs):
-            self.jobs_open.append(WorkerJob(self.id, self.index, self.set_name, FLAGS.iters_per_worker))
+            self.jobs_open.append(WorkerJob(self.id, self.index, self.set_name, 1))
 
     def name(self):
         '''Gets a printable name for this epoch.
@@ -225,7 +225,7 @@ class TrainingCoordinator(object):
         self.started = False
         self.is_chief = is_chief
         if is_chief:
-            self._httpd = BaseHTTPServer.HTTPServer((FLAGS.coord_host, FLAGS.coord_port), TrainingCoordinator.make_handler(self))
+            self._httpd = BaseHTTPServer.HTTPServer(('localhost', 2500), TrainingCoordinator.make_handler(self))
 
     def _reset_counters(self):
         self._index_train = 0
@@ -260,10 +260,10 @@ class TrainingCoordinator(object):
             gpus_per_worker = len(Config.available_devices)
 
             # Number of batches processed per job per worker
-            batches_per_job  = gpus_per_worker * max(1, FLAGS.iters_per_worker)
+            batches_per_job  = gpus_per_worker
 
             # Number of batches per global step
-            batches_per_step = gpus_per_worker * max(1, FLAGS.replicas_to_agg)
+            batches_per_step = gpus_per_worker
 
             # Number of global steps per epoch - to be at least 1
             steps_per_epoch = max(1, model_feeder.train.total_batches // batches_per_step)
