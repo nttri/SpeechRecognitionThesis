@@ -1,2 +1,4 @@
 
 .DS_Store
+model/__pycache__/
+model/util/__pycache__/
