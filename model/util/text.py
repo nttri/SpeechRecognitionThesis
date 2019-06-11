@@ -63,43 +63,6 @@ def text_to_char_array(original, alphabet):
     """
     return np.asarray([alphabet.label_from_string(c) for c in original])
 
-def sparse_tuple_from(sequences, dtype=np.int32):
-    r"""Creates a sparse representention of ``sequences``.
-    Args:
-        * sequences: a list of lists of type dtype where each element is a sequence
-
-    Returns a tuple with (indices, values, shape)
-    """
-    indices = []
-    values = []
-
-    for n, seq in enumerate(sequences):
-        indices.extend(zip([n]*len(seq), range(len(seq))))
-        values.extend(seq)
-
-    indices = np.asarray(indices, dtype=np.int64)
-    values = np.asarray(values, dtype=dtype)
-    shape = np.asarray([len(sequences), indices.max(0)[1]+1], dtype=np.int64)
-
-    return tf.SparseTensor(indices=indices, values=values, shape=shape)
-
-def sparse_tensor_value_to_texts(value, alphabet):
-    r"""
-    Given a :class:`tf.SparseTensor` ``value``, return an array of Python strings
-    representing its values.
-    """
-    return sparse_tuple_to_texts((value.indices, value.values, value.dense_shape), alphabet)
-
-def sparse_tuple_to_texts(tuple, alphabet):
-    indices = tuple[0]
-    values = tuple[1]
-    results = [''] * tuple[2][0]
-    for i in range(len(indices)):
-        index = indices[i][0]
-        results[index] += alphabet.string_from_label(values[i])
-    # List of strings
-    return results
-
 def wer(original, result):
     r"""
     The WER is defined as the editing/Levenshtein distance on word level
@@ -113,17 +76,6 @@ def wer(original, result):
     original = original.split()
     result = result.split()
     return levenshtein(original, result) / float(len(original))
-
-def wers(originals, results):
-    count = len(originals)
-    rates = []
-    mean = 0.0
-    assert count == len(results)
-    for i in range(count):
-        rate = wer(originals[i], results[i])
-        mean = mean + rate
-        rates.append(rate)
-    return rates, mean / float(count)
 
 # The following code is from: http://hetland.org/coding/python/levenshtein.py
 
@@ -203,27 +155,4 @@ def ctc_label_dense_to_sparse(labels, label_lengths, batch_size):
     vals_sparse = gather_nd(labels, indices, shape)
 
     return tf.SparseTensor(tf.to_int64(indices), vals_sparse, tf.to_int64(label_shape))
-
-# Validate and normalize transcriptions. Returns a cleaned version of the label
-# or None if it's invalid.
-def validate_label(label):
-    # For now we can only handle [a-z ']
-    if "(" in label or \
-                    "<" in label or \
-                    "[" in label or \
-                    "]" in label or \
-                    "&" in label or \
-                    "*" in label or \
-                    "{" in label or \
-            re.search(r"[0-9]", label) != None:
-        return None
-
-    label = label.replace("-", "")
-    label = label.replace("_", "")
-    label = label.replace(".", "")
-    label = label.replace(",", "")
-    label = label.replace("?", "")
-    label = label.strip()
-
-    return label.lower()
 

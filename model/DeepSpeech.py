@@ -11,16 +11,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = sys.argv[log_level_index] if log_level_inde
 import evaluate
 import numpy as np
 import progressbar
-import shutil
-import tempfile
 import tensorflow as tf
 import traceback
 
-from ds_ctcdecoder import ctc_beam_search_decoder, Scorer
 from six.moves import zip, range
-from tensorflow.contrib.lite.python import tflite_convert
 from tensorflow.python.tools import freeze_graph
-from util.audio import audiofile_to_input_vector
 from util.config import Config, initialize_globals
 from util.coordinator import TrainingCoordinator
 from util.feeding import DataSet, ModelFeeder
@@ -51,7 +46,7 @@ def variable_on_worker_level(name, shape, initializer):
     return var
 
 
-def BiRNN(batch_x, seq_length, dropout, reuse=False, batch_size=None, n_steps=-1, previous_state=None, tflite=False):
+def BiRNN(batch_x, seq_length, dropout, reuse=False, batch_size=None, n_steps=-1, previous_state=None):
     r'''
     That done, we will define the learned variables, the weights and biases,
     within the method ``BiRNN()`` which also constructs the neural network.
@@ -108,32 +103,16 @@ def BiRNN(batch_x, seq_length, dropout, reuse=False, batch_size=None, n_steps=-1
     # Both of which have inputs of length `n_cell_dim` and bias `1.0` for the forget gate of the LSTM.
 
     # Forward direction cell:
-    if not tflite:
-        fw_cell = tf.contrib.rnn.LSTMBlockFusedCell(Config.n_cell_dim, reuse=reuse)
-        layers['fw_cell'] = fw_cell
-    else:
-        fw_cell = tf.nn.rnn_cell.LSTMCell(Config.n_cell_dim, reuse=reuse)
+    fw_cell = tf.contrib.rnn.LSTMBlockFusedCell(Config.n_cell_dim, reuse=reuse)
+    layers['fw_cell'] = fw_cell
 
     # `layer_3` is now reshaped into `[n_steps, batch_size, 2*n_cell_dim]`,
     # as the LSTM RNN expects its input to be of shape `[max_time, batch_size, input_size]`.
     layer_3 = tf.reshape(layer_3, [n_steps, batch_size, Config.n_hidden_3])
-    if tflite:
-        # Generated StridedSlice, not supported by NNAPI
-        #n_layer_3 = []
-        #for l in range(layer_3.shape[0]):
-        #    n_layer_3.append(layer_3[l])
-        #layer_3 = n_layer_3
-
-        # Unstack/Unpack is not supported by NNAPI
-        layer_3 = tf.unstack(layer_3, n_steps)
 
     # We parametrize the RNN implementation as the training and inference graph
     # need to do different things here.
-    if not tflite:
-        output, output_state = fw_cell(inputs=layer_3, dtype=tf.float32, sequence_length=seq_length, initial_state=previous_state)
-    else:
-        output, output_state = tf.nn.static_rnn(fw_cell, layer_3, previous_state, tf.float32)
-        output = tf.concat(output, 0)
+    output, output_state = fw_cell(inputs=layer_3, dtype=tf.float32, sequence_length=seq_length, initial_state=previous_state)
 
     # Reshape output from a tensor of shape [n_steps, batch_size, n_cell_dim]
     # to a tensor of shape [n_steps*batch_size, n_cell_dim]
@@ -471,14 +450,6 @@ def train(server=None):
     # Collecting the hooks
     hooks = [CoordHook()]
 
-    # Hook to handle initialization and queues for sync replicas.
-    if not server is None:
-        hooks.append(optimizer.make_session_run_hook(Config.is_chief))
-
-    # Hook to save TensorBoard summaries
-    if FLAGS.summary_secs > 0:
-        hooks.append(tf.train.SummarySaverHook(save_secs=FLAGS.summary_secs, output_dir=FLAGS.summary_dir, summary_op=merge_all_summaries_op))
-
     # Hook wih number of checkpoint files to save in checkpoint_dir
     if FLAGS.train and FLAGS.max_to_keep > 0:
         saver = tf.train.Saver(max_to_keep=FLAGS.max_to_keep)
@@ -658,17 +629,13 @@ def test():
     evaluate.evaluate(test_data, graph)
 
 
-def create_inference_graph(batch_size=1, n_steps=16, tflite=False):
+def create_inference_graph(batch_size=1, n_steps=16):
     # Input tensor will be of shape [batch_size, n_steps, 2*n_context+1, n_input]
     input_tensor = tf.placeholder(tf.float32, [batch_size, n_steps if n_steps > 0 else None, 2*Config.n_context+1, Config.n_input], name='input_node')
     seq_length = tf.placeholder(tf.int32, [batch_size], name='input_lengths')
 
-    if not tflite:
-        previous_state_c = variable_on_worker_level('previous_state_c', [batch_size, Config.n_cell_dim], initializer=None)
-        previous_state_h = variable_on_worker_level('previous_state_h', [batch_size, Config.n_cell_dim], initializer=None)
-    else:
-        previous_state_c = tf.placeholder(tf.float32, [batch_size, Config.n_cell_dim], name='previous_state_c')
-        previous_state_h = tf.placeholder(tf.float32, [batch_size, Config.n_cell_dim], name='previous_state_h')
+    previous_state_c = variable_on_worker_level('previous_state_c', [batch_size, Config.n_cell_dim], initializer=None)
+    previous_state_h = variable_on_worker_level('previous_state_h', [batch_size, Config.n_cell_dim], initializer=None)
 
     previous_state = tf.contrib.rnn.LSTMStateTuple(previous_state_c, previous_state_h)
 
@@ -679,14 +646,7 @@ def create_inference_graph(batch_size=1, n_steps=16, tflite=False):
                            dropout=no_dropout,
                            batch_size=batch_size,
                            n_steps=n_steps,
-                           previous_state=previous_state,
-                           tflite=tflite)
-
-    # TF Lite runtime will check that input dimensions are 1, 2 or 4
-    # by default we get 3, the middle one being batch_size which is forced to
-    # one on inference graph, so remove that dimension
-    if tflite:
-        logits = tf.squeeze(logits, [1])
+                           previous_state=previous_state)
 
     # Apply softmax for CTC decoder
     logits = tf.nn.softmax(logits)
@@ -694,43 +654,24 @@ def create_inference_graph(batch_size=1, n_steps=16, tflite=False):
     new_state_c, new_state_h = layers['rnn_output_state']
 
     # Initial zero state
-    if not tflite:
-        zero_state = tf.zeros([batch_size, Config.n_cell_dim], tf.float32)
-        initialize_c = tf.assign(previous_state_c, zero_state)
-        initialize_h = tf.assign(previous_state_h, zero_state)
-        initialize_state = tf.group(initialize_c, initialize_h, name='initialize_state')
-        with tf.control_dependencies([tf.assign(previous_state_c, new_state_c), tf.assign(previous_state_h, new_state_h)]):
-            logits = tf.identity(logits, name='logits')
-
-        return (
-            {
-                'input': input_tensor,
-                'input_lengths': seq_length,
-            },
-            {
-                'outputs': logits,
-                'initialize_state': initialize_state,
-            },
-            layers
-        )
-    else:
+    zero_state = tf.zeros([batch_size, Config.n_cell_dim], tf.float32)
+    initialize_c = tf.assign(previous_state_c, zero_state)
+    initialize_h = tf.assign(previous_state_h, zero_state)
+    initialize_state = tf.group(initialize_c, initialize_h, name='initialize_state')
+    with tf.control_dependencies([tf.assign(previous_state_c, new_state_c), tf.assign(previous_state_h, new_state_h)]):
         logits = tf.identity(logits, name='logits')
-        new_state_c = tf.identity(new_state_c, name='new_state_c')
-        new_state_h = tf.identity(new_state_h, name='new_state_h')
 
-        return (
-            {
-                'input': input_tensor,
-                'previous_state_c': previous_state_c,
-                'previous_state_h': previous_state_h,
-            },
-            {
-                'outputs': logits,
-                'new_state_c': new_state_c,
-                'new_state_h': new_state_h,
-            },
-            layers
-        )
+    return (
+        {
+            'input': input_tensor,
+            'input_lengths': seq_length,
+        },
+        {
+            'outputs': logits,
+            'initialize_state': initialize_state,
+        },
+        layers
+    )
 
 
 def export():
@@ -744,23 +685,14 @@ def export():
         tf.reset_default_graph()
         session = tf.Session(config=Config.session_config)
 
-        inputs, outputs, _ = create_inference_graph(batch_size=1, n_steps=FLAGS.n_steps, tflite=FLAGS.export_tflite)
+        inputs, outputs, _ = create_inference_graph(batch_size=1, n_steps=FLAGS.n_steps)
         input_names = ",".join(tensor.op.name for tensor in inputs.values())
         output_names_tensors = [ tensor.op.name for tensor in outputs.values() if isinstance(tensor, Tensor) ]
         output_names_ops = [ tensor.name for tensor in outputs.values() if isinstance(tensor, Operation) ]
         output_names = ",".join(output_names_tensors + output_names_ops)
         input_shapes = ":".join(",".join(map(str, tensor.shape)) for tensor in inputs.values())
 
-        if not FLAGS.export_tflite:
-            mapping = {v.op.name: v for v in tf.global_variables() if not v.op.name.startswith('previous_state_')}
-        else:
-            # Create a saver using variables from the above newly created graph
-            def fixup(name):
-                if name.startswith('rnn/lstm_cell/'):
-                    return name.replace('rnn/lstm_cell/', 'lstm_fused_cell/')
-                return name
-
-            mapping = {fixup(v.op.name): v for v in tf.global_variables()}
+        mapping = {v.op.name: v for v in tf.global_variables() if not v.op.name.startswith('previous_state_')}
 
         saver = tf.train.Saver(mapping)
 
@@ -769,10 +701,6 @@ def export():
         checkpoint_path = checkpoint.model_checkpoint_path
 
         output_filename = 'output_graph.pb'
-        if FLAGS.remove_export:
-            if os.path.isdir(FLAGS.export_dir):
-                log_info('Removing old export')
-                shutil.rmtree(FLAGS.export_dir)
         try:
             output_graph_path = os.path.join(FLAGS.export_dir, output_filename)
 
@@ -792,94 +720,10 @@ def export():
                     variable_names_blacklist=variables_blacklist,
                     initializer_nodes='')
 
-            if not FLAGS.export_tflite:
-                do_graph_freeze(output_file=output_graph_path, output_node_names=output_names, variables_blacklist='previous_state_c,previous_state_h')
-            else:
-                temp_fd, temp_freeze = tempfile.mkstemp(dir=FLAGS.export_dir)
-                os.close(temp_fd)
-                do_graph_freeze(output_file=temp_freeze, output_node_names=output_names, variables_blacklist='')
-                output_tflite_path = os.path.join(FLAGS.export_dir, output_filename.replace('.pb', '.tflite'))
-                class TFLiteFlags():
-                    def __init__(self):
-                        self.graph_def_file = temp_freeze
-                        self.inference_type = 'FLOAT'
-                        self.input_arrays   = input_names
-                        self.input_shapes   = input_shapes
-                        self.output_arrays  = output_names
-                        self.output_file    = output_tflite_path
-                        self.output_format  = 'TFLITE'
-
-                        default_empty = [
-                            'inference_input_type',
-                            'mean_values',
-                            'default_ranges_min', 'default_ranges_max',
-                            'drop_control_dependency',
-                            'reorder_across_fake_quant',
-                            'change_concat_input_ranges',
-                            'allow_custom_ops',
-                            'converter_mode',
-                            'post_training_quantize',
-                            'dump_graphviz_dir',
-                            'dump_graphviz_video'
-                        ]
-                        for e in default_empty:
-                            self.__dict__[e] = None
-
-                flags = TFLiteFlags()
-                tflite_convert._convert_model(flags)
-                os.unlink(temp_freeze)
-                log_info('Exported model for TF Lite engine as {}'.format(os.path.basename(output_tflite_path)))
-
+            do_graph_freeze(output_file=output_graph_path, output_node_names=output_names, variables_blacklist='previous_state_c,previous_state_h')
             log_info('Models exported at %s' % (FLAGS.export_dir))
         except RuntimeError as e:
             log_error(str(e))
-
-def do_single_file_inference(input_file_path):
-    with tf.Session(config=Config.session_config) as session:
-        inputs, outputs, _ = create_inference_graph(batch_size=1, n_steps=-1)
-
-        # Create a saver using variables from the above newly created graph
-        mapping = {v.op.name: v for v in tf.global_variables() if not v.op.name.startswith('previous_state_')}
-        saver = tf.train.Saver(mapping)
-
-        # Restore variables from training checkpoint
-        # TODO: This restores the most recent checkpoint, but if we use validation to counteract
-        #       over-fitting, we may want to restore an earlier checkpoint.
-        checkpoint = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
-        if not checkpoint:
-            log_error('Checkpoint directory ({}) does not contain a valid checkpoint state.'.format(FLAGS.checkpoint_dir))
-            exit(1)
-
-        checkpoint_path = checkpoint.model_checkpoint_path
-        saver.restore(session, checkpoint_path)
-
-        session.run(outputs['initialize_state'])
-
-        features = audiofile_to_input_vector(input_file_path, Config.n_input, Config.n_context)
-        num_strides = len(features) - (Config.n_context * 2)
-
-        # Create a view into the array with overlapping strides of size
-        # numcontext (past) + 1 (present) + numcontext (future)
-        window_size = 2*Config.n_context+1
-        features = np.lib.stride_tricks.as_strided(
-            features,
-            (num_strides, window_size, Config.n_input),
-            (features.strides[0], features.strides[0], features.strides[1]),
-            writeable=False)
-
-        logits = session.run(outputs['outputs'], feed_dict = {
-            inputs['input']: [features],
-            inputs['input_lengths']: [num_strides],
-        })
-
-        logits = np.squeeze(logits)
-
-        scorer = Scorer(FLAGS.lm_alpha, FLAGS.lm_beta,
-                        FLAGS.lm_binary_path, FLAGS.lm_trie_path,
-                        Config.alphabet)
-        decoded = ctc_beam_search_decoder(logits, Config.alphabet, FLAGS.beam_width, scorer=scorer)
-        # Print highest probability result
-        print(decoded[0][1])
 
 
 def main(_):
@@ -896,35 +740,6 @@ def main(_):
                 with tf.Graph().as_default():
                     test()
             log_debug('Done.')
-        else:
-            # Create and start a server for the local task.
-            server = tf.train.Server(Config.cluster, job_name=FLAGS.job_name, task_index=FLAGS.task_index)
-            if FLAGS.job_name == 'ps':
-                # We are a parameter server and therefore we just wait for all workers to finish
-                # by waiting for their stop tokens.
-                with tf.Session(server.target) as session:
-                    for worker in FLAGS.worker_hosts:
-                        log_debug('Waiting for stop token...')
-                        token = session.run(Config.done_dequeues[FLAGS.task_index])
-                        if token < 0:
-                            log_debug('Got a kill switch token from worker %i.' % abs(token + 1))
-                            break
-                        log_debug('Got a stop token from worker %i.' % token)
-                log_debug('Session closed.')
-
-                if FLAGS.test:
-                    test()
-            elif FLAGS.job_name == 'worker':
-                # We are a worker and therefore we have to do some work.
-                # Assigns ops to the local worker by default.
-                with tf.device(tf.train.replica_device_setter(
-                               worker_device=Config.worker_device,
-                               cluster=Config.cluster)):
-
-                    # Do the training
-                    train(server)
-
-            log_debug('Server stopped.')
 
     # Are we the main process?
     if Config.is_chief:
@@ -933,8 +748,6 @@ def main(_):
         if FLAGS.export_dir:
             export()
 
-    if len(FLAGS.one_shot_infer):
-        do_single_file_inference(FLAGS.one_shot_infer)
 
 if __name__ == '__main__' :
     create_flags()

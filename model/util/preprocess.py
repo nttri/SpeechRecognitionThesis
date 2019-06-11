@@ -34,23 +34,6 @@ def preprocess(csv_files, batch_size, numcep, numcontext, alphabet, hdf5_cache_p
 
     print('Preprocessing', csv_files)
 
-    if hdf5_cache_path and os.path.exists(hdf5_cache_path):
-        with tables.open_file(hdf5_cache_path, 'r') as file:
-            features = file.root.features[:]
-            features_len = file.root.features_len[:]
-            transcript = file.root.transcript[:]
-            transcript_len = file.root.transcript_len[:]
-
-            # features are stored flattened, so reshape into
-            # [n_steps, (n_input + 2*n_context*n_input)]
-            for i in range(len(features)):
-                features[i] = np.reshape(features[i], [features_len[i], -1])
-
-            in_data = list(zip(features, features_len,
-                               transcript, transcript_len))
-            print('Loaded from cache at', hdf5_cache_path)
-            return pandas.DataFrame(data=in_data, columns=COLUMNS)
-
     source_data = None
     for csv in csv_files:
         file = pandas.read_csv(csv, encoding='utf-8', na_filter=False)
@@ -67,36 +50,6 @@ def preprocess(csv_files, batch_size, numcep, numcontext, alphabet, hdf5_cache_p
                       numcontext=numcontext,
                       alphabet=alphabet)
     out_data = pmap(step_fn, source_data.iterrows())
-
-    if hdf5_cache_path:
-        print('Saving to', hdf5_cache_path)
-
-        # list of tuples -> tuple of lists
-        features, features_len, transcript, transcript_len = zip(*out_data)
-
-        with tables.open_file(hdf5_cache_path, 'w') as file:
-            features_dset = file.create_vlarray(file.root,
-                                                'features',
-                                                tables.Float32Atom(),
-                                                filters=tables.Filters(complevel=1))
-            # VLArray atoms need to be 1D, so flatten feature array
-            for f in features:
-                features_dset.append(np.reshape(f, -1))
-
-            features_len_dset = file.create_array(file.root,
-                                                  'features_len',
-                                                  features_len)
-
-            transcript_dset = file.create_vlarray(file.root,
-                                                  'transcript',
-                                                  tables.Int32Atom(),
-                                                  filters=tables.Filters(complevel=1))
-            for t in transcript:
-                transcript_dset.append(t)
-
-            transcript_len_dset = file.create_array(file.root,
-                                                    'transcript_len',
-                                                    transcript_len)
 
     print('Preprocessing done')
     return pandas.DataFrame(data=out_data, columns=COLUMNS)

@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 
 from datetime import datetime
-from six.moves import zip, range, filter, urllib, BaseHTTPServer
+from six.moves import range, BaseHTTPServer
 from threading import Thread, Lock
 from util.config import Config
 from util.flags import FLAGS
@@ -216,47 +216,6 @@ class TrainingCoordinator(object):
         class TrainingCoordinationHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             '''Handles HTTP requests from remote workers to the Training Coordinator.
             '''
-            def _send_answer(self, data=None):
-                self.send_response(200)
-                self.send_header('content-type', 'text/plain')
-                self.end_headers()
-                if data:
-                    self.wfile.write(data)
-
-            def do_GET(self):
-                if coord.started:
-                    if self.path.startswith(PREFIX_NEXT_INDEX):
-                        index = coord.get_next_index(self.path[len(PREFIX_NEXT_INDEX):])
-                        if index >= 0:
-                            self._send_answer(str(index).encode("utf-8"))
-                            return
-                    elif self.path.startswith(PREFIX_GET_JOB):
-                        job = coord.get_job(worker=int(self.path[len(PREFIX_GET_JOB):]))
-                        if job:
-                            self._send_answer(pickle.dumps(job))
-                            return
-                    self.send_response(204) # end of training
-                else:
-                    self.send_response(202) # not ready yet
-                self.end_headers()
-
-            def do_POST(self):
-                if coord.started:
-                    src = self.rfile.read(int(self.headers['content-length']))
-                    job = coord.next_job(pickle.loads(src))
-                    if job:
-                        self._send_answer(pickle.dumps(job))
-                        return
-                    self.send_response(204) # end of training
-                else:
-                    self.send_response(202) # not ready yet
-                self.end_headers()
-
-            def log_message(self, format, *args):
-                '''Overriding base method to suppress web handler messages on stdout.
-                '''
-                return
-
         return TrainingCoordinationHandler
 
     def __init__(self, is_chief):
@@ -435,27 +394,6 @@ class TrainingCoordinator(object):
             self._httpd.shutdown()
             log_debug('Coordinator stopped.')
 
-    def _talk_to_chief(self, path, data=None, default=None):
-        tries = 0
-        while tries < FLAGS.coord_retries:
-            tries += 1
-            try:
-                url = 'http://%s:%d%s' % (FLAGS.coord_host, FLAGS.coord_port, path)
-                log_traffic('Contacting coordinator - url: %s, tries: %d ...' % (url, tries-1))
-                res = urllib.request.urlopen(urllib.request.Request(url, data, { 'content-type': 'text/plain' }))
-                str = res.read()
-                status = res.getcode()
-                log_traffic('Coordinator responded - url: %s, status: %s' % (url, status))
-                if status == 200:
-                    return str
-                if status == 204: # We use 204 (no content) to indicate end of training
-                    return default
-            except urllib.error.HTTPError as error:
-                log_traffic('Problem reaching coordinator - url: %s, HTTP code: %d' % (url, error.code))
-                pass
-            time.sleep(10)
-        return default
-
     def get_next_index(self, set_name):
         '''Retrives a new cluster-unique batch index for a given set-name.
         Prevents applying one batch multiple times per epoch.
@@ -467,17 +405,10 @@ class TrainingCoordinator(object):
             int. new data set index
         '''
         with self._lock:
-            if self.is_chief:
-                member = '_index_' + set_name
-                value = getattr(self, member, -1)
-                setattr(self, member, value + 1)
-                return value
-            else:
-                # We are a remote worker and have to hand over to the chief worker by HTTP
-                log_traffic('Asking for next index...')
-                value = int(self._talk_to_chief(PREFIX_NEXT_INDEX + set_name))
-                log_traffic('Got index %d.' % value)
-                return value
+            member = '_index_' + set_name
+            value = getattr(self, member, -1)
+            setattr(self, member, value + 1)
+            return value
 
     def _get_job(self, worker=0):
         job = None
@@ -501,36 +432,29 @@ class TrainingCoordinator(object):
         '''
         # Let's ensure that this does not interfere with other workers/requests
         with self._lock:
-            if self.is_chief:
-                # First try to get a next job
-                job = self._get_job(worker)
+            # First try to get a next job
+            job = self._get_job(worker)
 
-                if job is None:
-                    # If there was no next job, we give it a second chance by triggering the epoch state machine
-                    if self._next_epoch():
-                        # Epoch state machine got a new epoch
-                        # Second try to get a next job
-                        job = self._get_job(worker)
-                        if job is None:
-                            # Albeit the epoch state machine got a new epoch, the epoch had no new job for us
-                            log_error('Unexpected case - no job for worker %d.' % (worker))
-                        return job
+            if job is None:
+                # If there was no next job, we give it a second chance by triggering the epoch state machine
+                if self._next_epoch():
+                    # Epoch state machine got a new epoch
+                    # Second try to get a next job
+                    job = self._get_job(worker)
+                    if job is None:
+                        # Albeit the epoch state machine got a new epoch, the epoch had no new job for us
+                        log_error('Unexpected case - no job for worker %d.' % (worker))
+                    return job
 
-                    # Epoch state machine has no new epoch
-                    # This happens at the end of the whole training - nothing to worry about
-                    log_traffic('No jobs left for worker %d.' % (worker))
-                    self._log_all_jobs()
-                    return None
+                # Epoch state machine has no new epoch
+                # This happens at the end of the whole training - nothing to worry about
+                log_traffic('No jobs left for worker %d.' % (worker))
+                self._log_all_jobs()
+                return None
 
-                # We got a new job from one of the currently running epochs
-                log_traffic('Got new %s' % job)
-                return job
-
-            # We are a remote worker and have to hand over to the chief worker by HTTP
-            result = self._talk_to_chief(PREFIX_GET_JOB + str(FLAGS.task_index))
-            if result:
-                result = pickle.loads(result)
-            return result
+            # We got a new job from one of the currently running epochs
+            log_traffic('Got new %s' % job)
+            return job
 
     def next_job(self, job):
         '''Sends a finished job back to the coordinator and retrieves in exchange the next one.
@@ -543,27 +467,20 @@ class TrainingCoordinator(object):
             WorkerJob. next job of one of the running epochs that will get
                 associated with the worker from the finished job and put into state 'running'
         '''
-        if self.is_chief:
-            # Try to find the epoch the job belongs to
-            epoch = next((epoch for epoch in self._epochs_running if epoch.id == job.epoch_id), None)
-            if epoch:
-                # We are going to manipulate things - let's avoid undefined state
-                with self._lock:
-                    # Let the epoch finish the job
-                    epoch.finish_job(job)
-                    # Check, if epoch is done now
-                    if epoch.done():
-                        # If it declares itself done, move it from 'running' to 'done' collection
-                        self._epochs_running.remove(epoch)
-                        self._epochs_done.append(epoch)
-                        log_info('%s' % epoch)
-            else:
-                # There was no running epoch found for this job - this should never happen.
-                log_error('There is no running epoch of ID %d for job with ID %d. This should never happen.' % (job.epoch_id, job.id))
-            return self.get_job(job.worker)
-
-        # We are a remote worker and have to hand over to the chief worker by HTTP
-        result = self._talk_to_chief('', data=pickle.dumps(job))
-        if result:
-            result = pickle.loads(result)
-        return result
+        # Try to find the epoch the job belongs to
+        epoch = next((epoch for epoch in self._epochs_running if epoch.id == job.epoch_id), None)
+        if epoch:
+            # We are going to manipulate things - let's avoid undefined state
+            with self._lock:
+                # Let the epoch finish the job
+                epoch.finish_job(job)
+                # Check, if epoch is done now
+                if epoch.done():
+                    # If it declares itself done, move it from 'running' to 'done' collection
+                    self._epochs_running.remove(epoch)
+                    self._epochs_done.append(epoch)
+                    log_info('%s' % epoch)
+        else:
+            # There was no running epoch found for this job - this should never happen.
+            log_error('There is no running epoch of ID %d for job with ID %d. This should never happen.' % (job.epoch_id, job.id))
+        return self.get_job(job.worker)

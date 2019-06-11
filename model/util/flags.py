@@ -13,7 +13,6 @@ def create_flags():
     tf.app.flags.DEFINE_string  ('train_files',      '',          'comma separated list of files specifying the dataset used for training. multiple files will get merged')
     tf.app.flags.DEFINE_string  ('dev_files',        '',          'comma separated list of files specifying the dataset used for validation. multiple files will get merged')
     tf.app.flags.DEFINE_string  ('test_files',       '',          'comma separated list of files specifying the dataset used for testing. multiple files will get merged')
-    tf.app.flags.DEFINE_boolean ('fulltrace',        False,       'if full trace debug info should be generated during training')
 
     tf.app.flags.DEFINE_string  ('train_cached_features_path',      '',          'comma separated list of files specifying the dataset used for training. multiple files will get merged')
     tf.app.flags.DEFINE_string  ('dev_cached_features_path',        '',          'comma separated list of files specifying the dataset used for validation. multiple files will get merged')
@@ -28,7 +27,6 @@ def create_flags():
     tf.app.flags.DEFINE_integer ('task_index',       0,           'index of task within the job - worker with index 0 will be the chief')
     tf.app.flags.DEFINE_integer ('replicas',         -1,          'total number of replicas - if negative, its absolute value is multiplied by the number of workers')
     tf.app.flags.DEFINE_integer ('replicas_to_agg',  -1,          'number of replicas to aggregate - if negative, its absolute value is multiplied by the number of workers')
-    tf.app.flags.DEFINE_integer ('coord_retries',    100,         'number of tries of workers connecting to training coordinator before failing')
     tf.app.flags.DEFINE_string  ('coord_host',       'localhost', 'coordination server host')
     tf.app.flags.DEFINE_integer ('coord_port',       2500,        'coordination server port')
     tf.app.flags.DEFINE_integer ('iters_per_worker', 1,           'number of train or inference iterations per worker before results are sent back to coordinator')
@@ -62,8 +60,6 @@ def create_flags():
     tf.app.flags.DEFINE_integer ('dev_batch_size',   1,           'number of elements in a validation batch')
     tf.app.flags.DEFINE_integer ('test_batch_size',  1,           'number of elements in a test batch')
 
-    tf.app.flags.DEFINE_integer ('export_batch_size', 1,          'number of elements per batch on the exported graph')
-
     # Performance (UNSUPPORTED)
     tf.app.flags.DEFINE_integer ('inter_op_parallelism_threads', 0, 'number of inter-op parallelism threads - see tf.ConfigProto for more details')
     tf.app.flags.DEFINE_integer ('intra_op_parallelism_threads', 0, 'number of intra-op parallelism threads - see tf.ConfigProto for more details')
@@ -87,9 +83,6 @@ def create_flags():
     # Exporting
 
     tf.app.flags.DEFINE_string  ('export_dir',       '',          'directory in which exported models are stored - if omitted, the model won\'t get exported')
-    tf.app.flags.DEFINE_integer ('export_version',   1,           'version number of the exported model')
-    tf.app.flags.DEFINE_boolean ('remove_export',    False,       'whether to remove old exported models')
-    tf.app.flags.DEFINE_boolean ('export_tflite',    False,       'export a graph ready for TF Lite engine')
     tf.app.flags.DEFINE_boolean ('use_seq_length',   True,        'have sequence_length in the exported graph (will make tfcompile unhappy)')
     tf.app.flags.DEFINE_integer ('n_steps',          16,          'how many timesteps to process at once by the export graph, higher values mean more latency')
 
@@ -103,7 +96,6 @@ def create_flags():
     tf.app.flags.DEFINE_integer ('report_count',     10,          'number of phrases with lowest WER (best matching) to print out during a WER report')
 
     tf.app.flags.DEFINE_string  ('summary_dir',      '',          'target directory for TensorBoard summaries - defaults to directory "deepspeech/summaries" within user\'s data home specified by the XDG Base Directory Specification')
-    tf.app.flags.DEFINE_integer ('summary_secs',     0,           'interval in seconds for saving TensorBoard summaries - if 0, no summaries will be written')
 
     # Geometry
 
@@ -133,8 +125,3 @@ def create_flags():
     tf.app.flags.DEFINE_integer ('beam_width',       1024,        'beam width used in the CTC decoder when building candidate transcriptions')
     tf.app.flags.DEFINE_float   ('lm_alpha',         0.75,        'the alpha hyperparameter of the CTC decoder. Language Model weight.')
     tf.app.flags.DEFINE_float   ('lm_beta',          1.85,        'the beta hyperparameter of the CTC decoder. Word insertion weight.')
-
-    # Inference mode
-
-    tf.app.flags.DEFINE_string  ('one_shot_infer',       '',       'one-shot inference mode: specify a wav file and the script will load the checkpoint and perform inference on it. Disables training, testing and exporting.')
-

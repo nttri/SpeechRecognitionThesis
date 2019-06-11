@@ -129,14 +129,6 @@ def initialize_globals():
     # Dequeue operations for each parameter server
     c.done_dequeues = [queue.dequeue() for queue in done_queues]
 
-    if len(FLAGS.one_shot_infer) > 0:
-        FLAGS.train = False
-        FLAGS.test = False
-        FLAGS.export_dir = ''
-        if not os.path.exists(FLAGS.one_shot_infer):
-            log_error('Path specified in --one_shot_infer is not a valid file.')
-            exit(1)
-
     # Determine, if we are the chief worker
     c.is_chief = len(FLAGS.worker_hosts) == 0 or (FLAGS.task_index == 0 and FLAGS.job_name == 'worker')
 

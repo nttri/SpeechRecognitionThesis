@@ -17,7 +17,6 @@ from collections import namedtuple
 from ds_ctcdecoder import ctc_beam_search_decoder_batch, Scorer
 from multiprocessing import Pool, cpu_count
 from six.moves import zip, range
-from util.audio import audiofile_to_input_vector
 from util.config import Config, initialize_globals
 from util.flags import create_flags, FLAGS
 from util.logging import log_error
