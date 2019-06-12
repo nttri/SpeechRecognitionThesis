@@ -1,5 +1,7 @@
 package com.example.aiclassmate.view.adapter
 
+import android.graphics.Color
+import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +23,9 @@ class NoteAdapter(val activity: NoteActivity, val lstNote: List<Note>) :
 
     override fun onBindViewHolder(lectureVH: NoteAdapterVH, p1: Int) {
         with(lectureVH) {
+            if (p1 % 2 != 0) {
+                noteItem.setCardBackgroundColor(Color.parseColor("#b3ffff"))
+            }
             noteTitle.text = "Ghi chú $p1"
             noteContent.text = lstNote[p1].content
 
@@ -46,6 +51,7 @@ class NoteAdapter(val activity: NoteActivity, val lstNote: List<Note>) :
             val noteContent: TextView
             val noteLL: View
             val noteIM: View
+            val noteItem: CardView
 
             init {
                 root = itemV
@@ -54,6 +60,7 @@ class NoteAdapter(val activity: NoteActivity, val lstNote: List<Note>) :
                     noteContent = note_content
                     noteLL = ll_del_note
                     noteIM = iv_del_note
+                    noteItem = cv_item_note
                 }
             }
         }

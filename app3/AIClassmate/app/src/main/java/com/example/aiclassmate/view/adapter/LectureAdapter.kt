@@ -1,6 +1,8 @@
 package com.example.aiclassmate.view.adapter
 
+import android.graphics.Color
 import android.os.Environment
+import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import com.example.aiclassmate.data.Lecture
 import com.example.aiclassmate.view.activity.MainActivity
 import com.uttampanchasara.pdfgenerator.CreatePdf
 import kotlinx.android.synthetic.main.item_lecture_preview.view.*
+import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.toast
 import java.text.SimpleDateFormat
 
@@ -24,6 +27,9 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
 
     override fun onBindViewHolder(lectureVH: LectureAdapterVH, p1: Int) {
         with(lectureVH) {
+            if (p1 % 2 != 0) {
+                lectureItem.setCardBackgroundColor(Color.parseColor("#b3ffff"))
+            }
             lectureName.text = lstLecture[p1].name
             lectureContent.text = lstLecture[p1].content
             lectureNots.text = "${lstLecture[p1].noteList.size} ghi chú"
@@ -101,6 +107,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
             val lectureLL: View
             val lectureTV: View
             val lectureIM: View
+            val lectureItem: CardView
 
             init {
                 with(itemV) {
@@ -110,6 +117,7 @@ class LectureAdapter(val activity: MainActivity, val lstLecture: List<Lecture>) 
                     lectureLL = ll_export_pdf
                     lectureTV = tv_export_pdf
                     lectureIM = iv_export_pdf
+                    lectureItem = cv_item_lecture
                 }
             }
         }
