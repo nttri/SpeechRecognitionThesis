@@ -118,7 +118,7 @@ object AsrProcess {
 
     private fun postRequest(file: File) {
         val client = OkHttpClient()
-        val url = "https://vnstt001.herokuapp.com/file"
+        val url = "https://vasr002.appspot.com/file"
 
         val body = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
