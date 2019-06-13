@@ -80,7 +80,7 @@
                 android:background="#74FFEB3B"
                 android:gravity="top"
                 android:padding="8dp"
-        />
+                android:maxLines="15"/>
 
         <FrameLayout
                 android:id="@+id/fr_asr_title"
