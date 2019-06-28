@@ -1,0 +1,96 @@
+{
+  "objects": [
+    {
+      "type": "Động vật",
+      "image": "animals",
+      "list": [
+        {
+          "text": "con heo",
+          "image": "pig"
+        },
+        {
+          "text": "con cá xấu",
+          "image": "crocodile"
+        },
+        {
+          "text": "con gà",
+          "image": "chicken"
+        },
+        {
+          "text": "con mèo",
+          "image": "cat"
+        },
+        {
+          "text": "con chó",
+          "image": "dog"
+        },
+        {
+          "text": "con khỉ",
+          "image": "monkey"
+        },
+        {
+          "text": "con sư tử",
+          "image": "lion"
+        },
+        {
+          "text": "con trâu",
+          "image": "buffalo"
+        },
+        {
+          "text": "con bướm",
+          "image": "butterfly"
+        },
+        {
+          "text": "con rắn",
+          "image": "snake"
+        }
+      ]
+    },
+    {
+      "type": "Đồ ăn, thức uống",
+      "image": "foods",
+      "list": [
+        {
+          "text": "bánh mì",
+          "image": "bread"
+        },
+        {
+          "text": "phở",
+          "image": "pho"
+        },
+        {
+          "text": "cơm tấm",
+          "image": "comtam"
+        },
+        {
+          "text": "bánh cuốn",
+          "image": "banhcuon"
+        },
+        {
+          "text": "nước mía",
+          "image": "nuocmia"
+        },
+        {
+          "text": "bánh tráng",
+          "image": "banhtrang"
+        },
+        {
+          "text": "trà sữa",
+          "image": "trasua"
+        },
+        {
+          "text": "bánh canh cua",
+          "image": "banhcanhcua"
+        },
+        {
+          "text": "nước cam",
+          "image": "orangejuice"
+        },
+        {
+          "text": "cơm chiên",
+          "image": "comchien"
+        }
+      ]
+    }
+  ]
+}
