@@ -3,6 +3,7 @@ package com.example.betapdocaigame;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,7 +75,6 @@ public class ListAdapter extends BaseAdapter {
         listViewHolder.tvTopicName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "111", Toast.LENGTH_SHORT).show();
                 handlePlayTopic(position);
             }
         });
@@ -82,7 +82,6 @@ public class ListAdapter extends BaseAdapter {
         listViewHolder.ivTopicImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "222", Toast.LENGTH_SHORT).show();
                 handlePlayTopic(position);
             }
         });
@@ -90,13 +89,27 @@ public class ListAdapter extends BaseAdapter {
         listViewHolder.cellView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "333", Toast.LENGTH_SHORT).show();
                 handlePlayTopic(position);
             }
         });
     }
 
     private void handlePlayTopic(int position) {
+        MyTopic topic = getItem(position);
+        Intent intent = new Intent(context, QuizActivity.class);
+        MyQuiz quiz = DataHelper.getInstance().getQuiz(topic.getTitle(), 0);
 
+        if(quiz == null) {
+            Toast.makeText(context, "Có lỗi xảy ra", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        intent.putExtra("TopicName", topic.getTitle());
+        intent.putExtra("QuizText", quiz.getText());
+        intent.putExtra("QuizImage", quiz.getImage());
+        intent.putExtra("QuizNumber", 0);
+        intent.putExtra("Score", 0);
+
+        context.startActivity(intent);
     }
 }

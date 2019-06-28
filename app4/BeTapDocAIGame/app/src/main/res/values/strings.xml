@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Bé tập đọc tiếng Việt</string>
+    <string name="main_screen_title">Danh sách chủ đề</string>
+    <string name="continue_button">Tiếp tục</string>
+    <string name="close_button">Đóng</string>
+    <string name="ok_button">Đồng ý</string>
+    <string name="confirm_on_exit">Trò chơi đang diễn ra, bạn có chắc muốn thoát chứ?</string>
+    <string name="yes_button">Có</string>
+    <string name="no_button">Không</string>
 </resources>

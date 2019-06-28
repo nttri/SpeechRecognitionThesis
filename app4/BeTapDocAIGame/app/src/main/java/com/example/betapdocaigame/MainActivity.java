@@ -31,15 +31,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupUI() {
         //set title on toolbar
-        getSupportActionBar().setTitle("Danh sách chủ đề");
+        getSupportActionBar().setTitle(R.string.main_screen_title);
 
         //set activity background color
-        getWindow().getDecorView().setBackgroundColor(Color.rgb(238,238,238));
+        getWindow().getDecorView().setBackgroundColor(Color.rgb(218,218,218));
     }
 
     private void loadData() {
         //load data from json
         loadTopicsData();
+        DataHelper.getInstance().setTopics(topics);
 
         //setup data on listview
         listAdapter = new ListAdapter(this, topics);

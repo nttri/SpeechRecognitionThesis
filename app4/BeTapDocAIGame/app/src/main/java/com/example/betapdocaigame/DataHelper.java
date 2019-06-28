@@ -16,8 +16,8 @@ public class DataHelper {
         return instance;
     }
 
-    public void setTopics(ArrayList<MyTopic> topics) {
-        topics = topics;
+    public void setTopics(ArrayList<MyTopic> listTopics) {
+        topics = listTopics;
     }
 
     public MyQuiz getQuiz(String topicName, int number) {
