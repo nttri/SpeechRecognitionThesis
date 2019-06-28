@@ -26,11 +26,12 @@ public class MainActivity extends AppCompatActivity {
         listView = findViewById(R.id.customListView);
 
         loadData();
+        setupUI();
     }
 
     private void setupUI() {
         //set title on toolbar
-        getSupportActionBar().setTitle("Trang chủ");
+        getSupportActionBar().setTitle("Danh sách chủ đề");
 
         //set activity background color
         getWindow().getDecorView().setBackgroundColor(Color.rgb(238,238,238));
