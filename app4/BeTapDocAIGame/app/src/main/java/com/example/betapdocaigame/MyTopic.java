@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class MyTopic {
     private String title = "";
     private String image = "";
-    private ArrayList<MyQuestion> objects = new ArrayList<>();
+    private ArrayList<MyQuiz> objects = new ArrayList<>();
 
     public MyTopic(String title, String image, JSONArray arrObj) {
         this.title = title;
@@ -16,8 +16,8 @@ public class MyTopic {
 
         try {
             for (int i = 0; i < arrObj.length(); i++) {
-                MyQuestion myQuestion = new MyQuestion(arrObj.getJSONObject(i));
-                objects.add(myQuestion);
+                MyQuiz myQuiz = new MyQuiz(arrObj.getJSONObject(i));
+                objects.add(myQuiz);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -28,7 +28,7 @@ public class MyTopic {
         return title;
     }
 
-    public ArrayList<MyQuestion> getObjects() {
+    public ArrayList<MyQuiz> getObjects() {
         return objects;
     }
 

@@ -3,11 +3,12 @@ package com.example.betapdocaigame;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MyQuestion {
+
+public class MyQuiz {
     private String text = "";
     private String image = "";
 
-    public MyQuestion(JSONObject obj) {
+    public MyQuiz(JSONObject obj) {
         try {
             this.text = obj.getString("text");
             this.image = obj.getString("image");
