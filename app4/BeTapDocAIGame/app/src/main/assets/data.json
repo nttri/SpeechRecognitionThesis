@@ -91,6 +91,52 @@
           "image": "comchien"
         }
       ]
+    },
+    {
+      "type": "Đồ vật",
+      "image": "things",
+      "list": [
+        {
+          "text": "xe hơi",
+          "image": "xehoi"
+        },
+        {
+          "text": "điện thoại di động",
+          "image": "dtdd"
+        },
+        {
+          "text": "máy vi tính",
+          "image": "maytinh"
+        },
+        {
+          "text": "quả banh",
+          "image": "quabanh"
+        },
+        {
+          "text": "cuốn sách",
+          "image": "cuonsach"
+        },
+        {
+          "text": "bình nước",
+          "image": "binhnuoc"
+        },
+        {
+          "text": "tấm thảm",
+          "image": "tamtham"
+        },
+        {
+          "text": "cái bàn",
+          "image": "caiban"
+        },
+        {
+          "text": "cây bút chì",
+          "image": "caybutchi"
+        },
+        {
+          "text": "chiếc xe máy",
+          "image": "chiecxemay"
+        }
+      ]
     }
   ]
 }
