@@ -23,6 +23,7 @@ import com.example.betapdocaigame.data.MyQuiz;
 import com.example.betapdocaigame.helper.AudioConverter;
 import com.example.betapdocaigame.helper.DataHelper;
 import com.example.betapdocaigame.helper.PermissionHelper;
+import com.example.betapdocaigame.helper.RecorderHelper;
 
 import org.json.JSONObject;
 
@@ -63,18 +64,8 @@ public class QuizActivity extends AppCompatActivity {
     //------------------------------------------
 
     //handle audio variables
-    private static final int RECORDER_SAMPLERATE = 16000;
-    private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
-    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    private int BufferElements2Rec = 1024;
-    private int BytesPerElement = 2; // 2 bytes = 16 bits
-
-    private String pcmPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.pcm";
-    private String wavPathSave = Environment.getExternalStorageDirectory() + File.separator + "recording.wav";
-
-    private AudioRecord recorder = null;
-    private Thread recordingThread = null;
-    private boolean isRecording = false;
+    private String wavPath = Environment.getExternalStorageDirectory() + File.separator + "recording.wav";
+    private RecorderHelper recorderHelper = new RecorderHelper();
     //------------------------------------------
 
     @Override
@@ -132,14 +123,12 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void setupEvent() {
-
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onRecordPressed();
             }
         });
-
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,13 +138,13 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void onRecordPressed() {
-        if (isRecording) {
-            Toast.makeText(this, "Không thể thao tác khi đang ghi âm!", Toast.LENGTH_SHORT).show();
+        if (recorderHelper.isRecording()) {
+            Toast.makeText(this, R.string.avoid_action_on_recording, Toast.LENGTH_SHORT).show();
             return;
         }
         if(PermissionHelper.getInstance().checkPermissionOnDevice(this)) {
             disableButton(btnRecord);
-            startRecording();
+            recorderHelper.startRecording();
             startTimer();
         } else {
             PermissionHelper.getInstance().requestPermission(this);
@@ -163,8 +152,8 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void onNextPressed() {
-        if (isRecording) {
-            Toast.makeText(this, "Không thể thao tác khi đang ghi âm!", Toast.LENGTH_SHORT).show();
+        if (recorderHelper.isRecording()) {
+            Toast.makeText(this, R.string.avoid_action_on_recording, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -192,8 +181,8 @@ public class QuizActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (isRecording) {
-            Toast.makeText(this, "Không thể thao tác khi đang ghi âm!", Toast.LENGTH_SHORT).show();
+        if (recorderHelper.isRecording()) {
+            Toast.makeText(this, R.string.avoid_action_on_recording, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -226,78 +215,6 @@ public class QuizActivity extends AppCompatActivity {
         this.startActivity(new Intent(this, MainActivity.class));
     }
 
-    private void startRecording() {
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                RECORDER_SAMPLERATE, RECORDER_CHANNELS,
-                RECORDER_AUDIO_ENCODING, BufferElements2Rec * BytesPerElement);
-
-        recorder.startRecording();
-        isRecording = true;
-        recordingThread = new Thread(new Runnable() {
-            public void run() {
-                writeAudioDataToFile();
-            }
-        }, "AudioRecorder Thread");
-        recordingThread.start();
-    }
-
-    private byte[] short2byte(short[] sData) {
-        int shortArrsize = sData.length;
-        byte[] bytes = new byte[shortArrsize * 2];
-        for (int i = 0; i < shortArrsize; i++) {
-            bytes[i * 2] = (byte) (sData[i] & 0x00FF);
-            bytes[(i * 2) + 1] = (byte) (sData[i] >> 8);
-            sData[i] = 0;
-        }
-        return bytes;
-
-    }
-
-    private void writeAudioDataToFile() {
-        short sData[] = new short[BufferElements2Rec];
-
-        FileOutputStream os = null;
-        try {
-            os = new FileOutputStream(pcmPathSave);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        while (isRecording) {
-            recorder.read(sData, 0, BufferElements2Rec);
-            try {
-                byte bData[] = short2byte(sData);
-                os.write(bData, 0, BufferElements2Rec * BytesPerElement);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void stopRecording() {
-        if (null != recorder) {
-            isRecording = false;
-            recorder.stop();
-            recorder.release();
-            recorder = null;
-            recordingThread = null;
-        }
-        tvTimer.setTextColor(getResources().getColor(R.color.colorGreyText));
-    }
-
-    private void saveToWave() {
-        try {
-            AudioConverter.PCMToWAV(new File(pcmPathSave), new File(wavPathSave), 1, RECORDER_SAMPLERATE, 16);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void startTimer() {
         new CountDownTimer(3000, 1000) {
 
@@ -308,16 +225,21 @@ public class QuizActivity extends AppCompatActivity {
             }
 
             public void onFinish() {
-                stopRecording();
-                saveToWave();
-                sendRequest();
+                handleFinishCountDown();
             }
 
         }.start();
     }
 
+    private void handleFinishCountDown() {
+        recorderHelper.stopRecording();
+        recorderHelper.convertPCMToWav(wavPath);
+        tvTimer.setTextColor(getResources().getColor(R.color.colorGreyText));
+        sendRequest();
+    }
+
     private void sendRequest() {
-        File file = new File(wavPathSave);
+        File file = new File(wavPath);
         OkHttpClient client = new OkHttpClient();
         String url = "https://vasr002.appspot.com/file";
 
@@ -363,6 +285,9 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void run() {
                 processAnswer();
+                if (currentQuizNumber == 10) {
+                    showCongrateDialog();
+                }
             }
         });
     }
@@ -383,6 +308,18 @@ public class QuizActivity extends AppCompatActivity {
         currentScore += 10;
         tvScore.setText("Điểm: " + currentScore);
         tvAnswer.setTextColor(this.getResources().getColor(R.color.colorCorrect));
+    }
+
+    private void showCongrateDialog() {
+        String msg = "Tổng số điểm của bạn là " + currentScore + " điểm!";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.close_button, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {}
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private void resetQuiz() {

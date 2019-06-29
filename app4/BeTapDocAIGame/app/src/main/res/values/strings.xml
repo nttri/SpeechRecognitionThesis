@@ -8,4 +8,5 @@
     <string name="yes_button">Có</string>
     <string name="no_button">Không</string>
     <string name="text_view_guide">Ghi âm và đọc to các từ bên dưới:</string>
+    <string name="avoid_action_on_recording">Không thể thao tác khi đang ghi âm!</string>
 </resources>
