@@ -25,7 +25,7 @@ public class DataHelper {
 
     public MyQuiz getQuiz(String topicName, int number) {
         for (MyTopic topic: topics) {
-            if (topic.getTitle() == topicName) {
+            if (topic.getTitle().equals(topicName)) {
                 ArrayList<MyQuiz> quizes =  topic.getObjects();
                 return quizes.get(number);
             }

@@ -124,7 +124,7 @@
                     android:maxLines="1"
                     android:textSize="64sp"
                     android:textStyle="bold"
-                    android:textColor="@color/colorBlack"/>
+                    android:textColor="@color/colorPurple" />
 
             </LinearLayout>
 
@@ -158,8 +158,7 @@
                     android:id="@+id/btnNext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_next_white"
-                    android:backgroundTint="@color/colorPrimary" />
+                    android:src="@drawable/ic_next_white"/>
 
             </LinearLayout>
 
