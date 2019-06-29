@@ -1,5 +1,8 @@
-package com.example.betapdocaigame;
+package com.example.betapdocaigame.helper;
 
+
+import com.example.betapdocaigame.data.MyQuiz;
+import com.example.betapdocaigame.data.MyTopic;
 
 import java.util.ArrayList;
 

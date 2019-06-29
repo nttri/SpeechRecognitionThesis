@@ -5,25 +5,165 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".QuizActivity"
+    tools:context=".view.activity.QuizActivity"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
     
     <LinearLayout
+        android:id="@+id/llTop"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="75"
         android:orientation="vertical"
         android:background="@color/colorWhite">
 
+        <TextView
+            android:id="@+id/tvScore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:textAlignment="textEnd"
+            android:text="TextView"
+            android:maxLines="1"
+            android:textColor="@color/colorCorrect"/>
+
+        <ImageView
+            android:id="@+id/ivQuizImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/question"/>
+
+        <TextView
+            android:id="@+id/tvGuide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:textAlignment="center"
+            android:text="@string/text_view_guide"
+            android:maxLines="1"
+            android:textColor="@color/colorGreyText"/>
+
+        <TextView
+            android:id="@+id/tvQuizText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="38sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:textAlignment="center"
+            android:text="TextView"
+            android:maxLines="1"
+            android:textColor="@color/colorBlack"/>
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llBottom"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="25"
         android:orientation="vertical"
-        android:background="@color/colorGrey">
+        android:background="@color/colorGreyView">
+
+        <LinearLayout
+            android:id="@+id/llBottom1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="40"
+            android:orientation="vertical"
+            android:background="@color/colorGreyView">
+
+            <TextView
+                android:id="@+id/tvAnswer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:textAlignment="textStart"
+                android:text="TextView"
+                android:maxLines="2"
+                android:textColor="@color/colorBlack"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llBottom2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="60"
+            android:orientation="horizontal"
+            android:background="@color/colorGreyView">
+
+            <LinearLayout
+                android:id="@+id/llBottom2L"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@color/colorGreyView">
+                
+                <TextView
+                    android:id="@+id/tvTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:maxLines="1"
+                    android:textSize="64sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llBottom2C"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@color/colorGreyView">
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/btnRecord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_mic_white" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llBottom2R"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@color/colorGreyView">
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/btnNext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_next_white"
+                    android:backgroundTint="@color/colorPrimary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 

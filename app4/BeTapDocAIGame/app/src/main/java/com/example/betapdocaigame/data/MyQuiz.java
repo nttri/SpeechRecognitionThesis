@@ -1,4 +1,4 @@
-package com.example.betapdocaigame;
+package com.example.betapdocaigame.data;
 
 import org.json.JSONException;
 import org.json.JSONObject;

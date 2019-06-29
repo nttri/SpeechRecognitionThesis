@@ -7,4 +7,5 @@
     <string name="confirm_on_exit">Trò chơi đang diễn ra, bạn có chắc muốn thoát chứ?</string>
     <string name="yes_button">Có</string>
     <string name="no_button">Không</string>
+    <string name="text_view_guide">Ghi âm và đọc to các từ bên dưới:</string>
 </resources>

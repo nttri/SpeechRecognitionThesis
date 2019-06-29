@@ -1,9 +1,14 @@
-package com.example.betapdocaigame;
+package com.example.betapdocaigame.view.activity;
 
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
+
+import com.example.betapdocaigame.helper.DataHelper;
+import com.example.betapdocaigame.view.adapter.ListAdapter;
+import com.example.betapdocaigame.data.MyTopic;
+import com.example.betapdocaigame.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -1,15 +1,18 @@
-package com.example.betapdocaigame;
+package com.example.betapdocaigame.view.adapter;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Toast;
+
+import com.example.betapdocaigame.helper.DataHelper;
+import com.example.betapdocaigame.data.MyQuiz;
+import com.example.betapdocaigame.data.MyTopic;
+import com.example.betapdocaigame.R;
+import com.example.betapdocaigame.view.activity.QuizActivity;
 
 import java.util.ArrayList;
 
