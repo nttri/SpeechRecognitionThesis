@@ -115,7 +115,7 @@ public class QuizActivity extends AppCompatActivity {
         tvAnswer.setText("");
 
         //timer
-        tvTimer.setText("3s");
+        tvTimer.setText("5s");
 
         //buttons
         enableButton(btnRecord);
@@ -216,7 +216,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        new CountDownTimer(3000, 1000) {
+        new CountDownTimer(5000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 long sec = millisUntilFinished / 1000;
@@ -336,7 +336,7 @@ public class QuizActivity extends AppCompatActivity {
         enableButton(btnRecord);
 
         //setup timer text
-        tvTimer.setText("3s");
+        tvTimer.setText("5s");
         tvTimer.setTextColor(this.getResources().getColor(R.color.colorPurple));
     }
 
